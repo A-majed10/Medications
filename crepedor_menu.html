@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Crepe D'Or — Menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #0A0703;
+  --surface:   #151009;
+  --surface-hi:#1E1710;
+  --gold:      #C8920A;
+  --gold-l:    #EDBA2A;
+  --gold-p:    #F2DCA0;
+  --orange:    #C4661A;
+  --cream:     #F5EBCD;
+  --cream-2:   #B8A47F;
+  --cream-3:   #6A5B44;
+  --rim:       rgba(200,146,10,.13);
+  --rim-a:     rgba(200,146,10,.38);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--cream);
+  font-family: 'Inter', sans-serif;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── HERO ──────────────────────────────────── */
+.hero {
+  position: relative;
+  padding: 60px 24px 44px;
+  text-align: center;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 90% 55% at 50% -5%,
+    rgba(200,146,10,.16) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--rim-a) 50%, transparent 100%);
+}
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 12px;
+  font-size: 9.5px; font-weight: 600; letter-spacing: .26em;
+  text-transform: uppercase; color: var(--gold);
+  margin-bottom: 20px;
+}
+.hero-eyebrow::before,
+.hero-eyebrow::after {
+  content: ''; display: block;
+  width: 22px; height: 1px; background: var(--gold); opacity: .45;
+}
+
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 700; line-height: .88;
+  color: var(--cream); letter-spacing: .025em;
+  font-size: clamp(56px, 15vw, 100px);
+  position: relative; z-index: 1;
+}
+.hero-title em {
+  display: block; font-style: italic;
+  color: var(--gold-l);
+  font-size: .72em; letter-spacing: .04em;
+  margin-top: 4px;
+}
+
+.hero-rule {
+  width: 50px; height: 1px; margin: 20px auto 17px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.hero-sub {
+  font-size: 10px; font-weight: 500; letter-spacing: .22em;
+  text-transform: uppercase; color: var(--cream-3);
+  position: relative; z-index: 1;
+}
+
+/* ─── CATEGORY NAV ──────────────────────────── */
+.cat-sticky {
+  position: sticky; top: 0; z-index: 60;
+  background: rgba(10,7,3,.9);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+}
+.cat-sticky::after {
+  content: '';
+  display: block; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--rim) 30%, var(--rim) 70%, transparent);
+}
+
+.cat-scroll {
+  display: flex; gap: 6px;
+  overflow-x: auto; overflow-y: hidden;
+  padding: 11px 16px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.cat-scroll::-webkit-scrollbar { display: none; }
+
+.cat-pill {
+  flex: 0 0 auto;
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 16px;
+  border-radius: 100px;
+  border: 1px solid var(--rim);
+  background: transparent;
+  color: var(--cream-2);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px; font-weight: 500;
+  cursor: pointer; white-space: nowrap;
+  transition: all .18s ease;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+.cat-pill:hover {
+  border-color: var(--rim-a); color: var(--cream);
+  background: rgba(200,146,10,.04);
+}
+.cat-pill.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #0A0703; font-weight: 700;
+}
+.cat-pill .ico { font-size: 14px; }
+
+/* ─── MENU BODY ─────────────────────────────── */
+.menu-wrap {
+  max-width: 720px; margin: 0 auto;
+  padding: 8px 14px 120px;
+}
+
+/* ─── SECTION ───────────────────────────────── */
+.msec { scroll-margin-top: 56px; }
+
+.msec-head {
+  display: flex; align-items: baseline;
+  padding: 30px 2px 14px;
+  border-bottom: 1px solid var(--rim);
+  margin-bottom: 14px;
+}
+.msec-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; font-weight: 700;
+  color: var(--cream); letter-spacing: .015em;
+}
+.msec-count {
+  margin-left: auto;
+  font-size: 10.5px; font-weight: 600; letter-spacing: .15em;
+  text-transform: uppercase; color: var(--gold);
+}
+
+/* ─── CARD GRID ─────────────────────────────── */
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+@media (min-width: 500px) {
+  .card-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+}
+@media (min-width: 680px) {
+  .card-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--rim);
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    transform .22s cubic-bezier(.22,1,.36,1),
+    box-shadow .22s,
+    border-color .22s;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+.card:hover {
+  transform: translateY(-5px);
+  border-color: var(--rim-a);
+  box-shadow:
+    0 18px 50px rgba(0,0,0,.55),
+    0 0 0 1px rgba(200,146,10,.07);
+}
+.card:active { transform: scale(.97); transition-duration: .1s; }
+
+/* image / placeholder */
+.card-thumb {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  position: relative;
+}
+.card-thumb img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform .4s ease;
+}
+.card:hover .card-thumb img { transform: scale(1.08); }
+
+.card-ph {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 38px;
+  transition: transform .4s ease;
+}
+.card:hover .card-ph { transform: scale(1.1); }
+
+/* per-category gradient backgrounds */
+.ph-crepe    { background: linear-gradient(135deg,#1E1108 0%,#2E1D0E 100%); }
+.ph-waffle   { background: linear-gradient(135deg,#1A1208 0%,#2A1E0A 100%); }
+.ph-pancake  { background: linear-gradient(135deg,#1C1409 0%,#291C0D 100%); }
+.ph-cup      { background: linear-gradient(135deg,#15100C 0%,#221810 100%); }
+.ph-juice    { background: linear-gradient(135deg,#121A09 0%,#1A250C 100%); }
+.ph-smoothie { background: linear-gradient(135deg,#1A0D10 0%,#27121A 100%); }
+.ph-shake    { background: linear-gradient(135deg,#10100E 0%,#191817 100%); }
+
+/* shine overlay on card image */
+.card-thumb::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 40%,
+    rgba(10,7,3,.65) 100%
+  );
+  pointer-events: none;
+}
+
+.card-body { padding: 10px 12px 13px; }
+.card-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14.5px; font-weight: 600;
+  color: var(--cream); line-height: 1.2;
+  margin-bottom: 3px;
+}
+.card-desc {
+  font-size: 10.5px; color: var(--cream-3);
+  line-height: 1.4; margin-bottom: 10px;
+}
+.card-foot {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-price {
+  font-size: 15px; font-weight: 700; color: var(--gold-l);
+  letter-spacing: .01em;
+}
+.card-price small {
+  font-size: 9.5px; font-weight: 400;
+  color: var(--cream-3); margin-right: 1px;
+}
+
+/* ─── BOTTOM BAR ────────────────────────────── */
+.bot-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(10,7,3,.97);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border-top: 1px solid var(--rim);
+  padding: 10px 22px max(12px, env(safe-area-inset-bottom));
+  display: flex; align-items: center; justify-content: space-between;
+}
+.bot-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 19px; font-weight: 700; color: var(--cream);
+}
+.bot-logo i { color: var(--gold-l); font-style: italic; }
+
+.btn-cta {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: linear-gradient(135deg, var(--gold-l) 0%, var(--orange) 100%);
+  color: #0A0703;
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px; font-weight: 700;
+  border: none; border-radius: 100px;
+  padding: 10px 20px; cursor: pointer;
+  text-decoration: none;
+  transition: opacity .18s, transform .18s;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+.btn-cta:hover { opacity: .9; transform: translateY(-1px); }
+.btn-cta:active { transform: scale(.96); }
+.btn-cta svg { width: 14px; height: 14px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HERO ═══════════ -->
+<header class="hero">
+  <div class="hero-eyebrow">Est. 2015 &middot; Lebanon</div>
+  <h1 class="hero-title">
+    Crepe <em>D'Or</em>
+  </h1>
+  <div class="hero-rule"></div>
+  <p class="hero-sub">Maison Fond&eacute;e en 2015</p>
+</header>
+
+<!-- ═══════════ CATEGORY NAV ═══════════ -->
+<nav class="cat-sticky" aria-label="Menu categories">
+  <div class="cat-scroll" id="catScroll">
+    <button class="cat-pill active" data-sec="crepe"><span class="ico">🥞</span>Crepe</button>
+    <button class="cat-pill" data-sec="waffle"><span class="ico">🧇</span>Waffle</button>
+    <button class="cat-pill" data-sec="pancake"><span class="ico">🫓</span>Pancake</button>
+    <button class="cat-pill" data-sec="cup"><span class="ico">🍮</span>Cup</button>
+    <button class="cat-pill" data-sec="juice"><span class="ico">🍋</span>Juice</button>
+    <button class="cat-pill" data-sec="smoothie"><span class="ico">🍓</span>Smoothie</button>
+    <button class="cat-pill" data-sec="milkshake"><span class="ico">🥛</span>Milkshake</button>
+  </div>
+</nav>
+
+<!-- ═══════════ MENU ═══════════ -->
+<main class="menu-wrap">
+
+  <!-- ── CREPE ── -->
+  <section class="msec" id="sec-crepe">
+    <div class="msec-head">
+      <h2 class="msec-title">Crepe</h2>
+      <span class="msec-count">3 items</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-crepe">🥞</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Nutella Crepe</div>
+          <div class="card-desc">Nutella</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>6.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-crepe">🥞</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Lotus Crepe</div>
+          <div class="card-desc">Lotus &amp; white chocolate</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>6.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-crepe">🥞</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Kinder Crepe</div>
+          <div class="card-desc">Kinder</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>6.00</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── WAFFLE ── -->
+  <section class="msec" id="sec-waffle">
+    <div class="msec-head">
+      <h2 class="msec-title">Waffle</h2>
+      <span class="msec-count">4 items</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-waffle">🧇</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Classic Waffle</div>
+          <div class="card-desc">Butter &amp; powdered sugar</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>7.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-waffle">🧇</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Nutella Waffle</div>
+          <div class="card-desc">Nutella &amp; hazelnuts</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>7.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-waffle">🧇</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Lotus Waffle</div>
+          <div class="card-desc">Lotus &amp; white chocolate</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>7.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-waffle">🧇</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Kinder Waffle</div>
+          <div class="card-desc">Kinder chocolate</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>7.00</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── PANCAKE ── -->
+  <section class="msec" id="sec-pancake">
+    <div class="msec-head">
+      <h2 class="msec-title">Pancake</h2>
+      <span class="msec-count">4 items</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-pancake">🥞</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Classic Pancake</div>
+          <div class="card-desc">Maple syrup &amp; butter</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>6.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-pancake">🥞</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Nutella Pancake</div>
+          <div class="card-desc">Nutella &amp; powdered sugar</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>6.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-pancake">🥞</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Lotus Pancake</div>
+          <div class="card-desc">Lotus cream &amp; white chocolate</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>6.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-pancake">🥞</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Kinder Pancake</div>
+          <div class="card-desc">Kinder chocolate</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>6.00</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── CUP ── -->
+  <section class="msec" id="sec-cup">
+    <div class="msec-head">
+      <h2 class="msec-title">Cup</h2>
+      <span class="msec-count">4 items</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-cup">🍮</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Nutella Cup</div>
+          <div class="card-desc">Nutella cream dessert</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>5.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-cup">🍮</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Lotus Cup</div>
+          <div class="card-desc">Lotus biscoff cream</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>5.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-cup">🍮</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Kinder Cup</div>
+          <div class="card-desc">Kinder chocolate cream</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>5.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-cup">🍮</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Caramel Cup</div>
+          <div class="card-desc">Caramel &amp; vanilla cream</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>5.00</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── JUICE ── -->
+  <section class="msec" id="sec-juice">
+    <div class="msec-head">
+      <h2 class="msec-title">Juice</h2>
+      <span class="msec-count">4 items</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-juice">🍊</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Orange Juice</div>
+          <div class="card-desc">Fresh squeezed</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>4.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-juice">🥭</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Mango Juice</div>
+          <div class="card-desc">Fresh mango</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>4.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-juice">🍋</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Lemon Mint</div>
+          <div class="card-desc">Fresh lemon &amp; mint leaves</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>4.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-juice">🍉</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Watermelon Juice</div>
+          <div class="card-desc">Fresh watermelon</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>4.00</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── SMOOTHIE ── -->
+  <section class="msec" id="sec-smoothie">
+    <div class="msec-head">
+      <h2 class="msec-title">Smoothie</h2>
+      <span class="msec-count">4 items</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-smoothie">🍓</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Strawberry</div>
+          <div class="card-desc">Fresh strawberry blend</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>5.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-smoothie">🥭</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Mango</div>
+          <div class="card-desc">Tropical mango blend</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>5.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-smoothie">🫐</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Mixed Berry</div>
+          <div class="card-desc">Blueberry, raspberry &amp; strawberry</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>5.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-smoothie">🍌</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Banana</div>
+          <div class="card-desc">Banana &amp; honey</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>5.00</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── MILKSHAKE ── -->
+  <section class="msec" id="sec-milkshake">
+    <div class="msec-head">
+      <h2 class="msec-title">Milkshake</h2>
+      <span class="msec-count">5 items</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-shake">🍫</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Chocolate</div>
+          <div class="card-desc">Rich chocolate shake</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>5.50</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-shake">🍦</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Vanilla</div>
+          <div class="card-desc">Classic vanilla shake</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>5.50</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-shake">🍓</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Strawberry</div>
+          <div class="card-desc">Fresh strawberry shake</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>5.50</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-shake">🍪</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Lotus</div>
+          <div class="card-desc">Lotus biscoff shake</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>5.50</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-thumb">
+          <div class="card-ph ph-shake">🍬</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Kinder</div>
+          <div class="card-desc">Kinder chocolate shake</div>
+          <div class="card-foot">
+            <span class="card-price"><small>USD</small>5.50</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══════════ BOTTOM BAR ═══════════ -->
+<footer class="bot-bar">
+  <div class="bot-logo">Crepe <i>D'Or</i></div>
+  <a href="tel:+961" class="btn-cta">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 6.81a20 20 0 01-3.07-8.63A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/>
+    </svg>
+    Order Now
+  </a>
+</footer>
+
+<script>
+(function () {
+  const sections = [...document.querySelectorAll('.msec')];
+  const pills    = [...document.querySelectorAll('.cat-pill')];
+  const catNav   = document.getElementById('catScroll');
+  const sticky   = document.querySelector('.cat-sticky');
+
+  /* ── scroll-spy ── */
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const id   = e.target.id.replace('sec-', '');
+      const pill = pills.find(p => p.dataset.sec === id);
+      if (!pill) return;
+      pills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      /* keep active pill visible in nav bar */
+      pill.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' });
+    });
+  }, {
+    root: null,
+    rootMargin: `-${sticky.offsetHeight + 4}px 0px -55% 0px`,
+    threshold: 0
+  });
+  sections.forEach(s => obs.observe(s));
+
+  /* ── click nav pill ── */
+  pills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      const sec   = document.getElementById('sec-' + pill.dataset.sec);
+      if (!sec) return;
+      const navH  = sticky.offsetHeight;
+      const top   = sec.getBoundingClientRect().top + window.scrollY - navH - 8;
+      window.scrollTo({ top, behavior: 'smooth' });
+    });
+  });
+})();
+</script>
+</body>
+</html>
