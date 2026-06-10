@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Xpert Ventures — Backing Exceptional Founders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050508;
+  --bg2: #0c0c12;
+  --bg3: #111118;
+  --surface: #16161f;
+  --surface2: #1e1e2a;
+  --accent: #6c63ff;
+  --accent2: #a78bfa;
+  --accent-glow: rgba(108,99,255,0.18);
+  --gold: #f0b429;
+  --white: #ffffff;
+  --text: #e8e8f0;
+  --muted: #8888a8;
+  --border: rgba(255,255,255,0.07);
+  --font-head: 'Sora', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* ─── NAV ─────────────────────────────── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6vw;
+  height: 72px;
+  background: rgba(5,5,8,0.82);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--white);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+.logo span { color: var(--accent2); }
+
+.nav-links {
+  display: flex;
+  gap: 2.5rem;
+  list-style: none;
+}
+.nav-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--white); }
+
+.nav-cta {
+  background: var(--accent);
+  color: var(--white) !important;
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  transition: background 0.2s !important;
+}
+.nav-cta:hover { background: var(--accent2) !important; color: var(--bg) !important; }
+
+/* ─── HERO ────────────────────────────── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 6vw 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(108,99,255,0.22) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 80% 60%, rgba(167,139,250,0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, black 30%, transparent 100%);
+  pointer-events: none;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(108,99,255,0.12);
+  border: 1px solid rgba(108,99,255,0.3);
+  color: var(--accent2);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.35rem 1rem;
+  border-radius: 100px;
+  margin-bottom: 2rem;
+}
+.hero-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--accent2);
+  border-radius: 50%;
+}
+
+.hero h1 {
+  font-family: var(--font-head);
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--white);
+  max-width: 900px;
+  margin-bottom: 1.5rem;
+}
+.hero h1 em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--accent2) 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero p {
+  font-size: 1.15rem;
+  color: var(--muted);
+  max-width: 560px;
+  margin-bottom: 2.5rem;
+  line-height: 1.75;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--white);
+  padding: 0.85rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.2s;
+  box-shadow: 0 0 30px rgba(108,99,255,0.35);
+}
+.btn-primary:hover {
+  background: var(--accent2);
+  transform: translateY(-2px);
+  box-shadow: 0 0 40px rgba(167,139,250,0.45);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text);
+  padding: 0.85rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+.btn-ghost:hover {
+  border-color: rgba(255,255,255,0.2);
+  color: var(--white);
+  background: rgba(255,255,255,0.04);
+}
+
+.hero-stats {
+  display: flex;
+  gap: 3rem;
+  margin-top: 5rem;
+  padding-top: 3rem;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.stat-item { text-align: center; }
+.stat-number {
+  font-family: var(--font-head);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: -0.03em;
+}
+.stat-number span { color: var(--accent2); }
+.stat-label {
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 0.25rem;
+}
+
+/* ─── SECTIONS ────────────────────────── */
+section { padding: 100px 6vw; }
+
+.section-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent2);
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-family: var(--font-head);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--white);
+  line-height: 1.15;
+  margin-bottom: 1.25rem;
+}
+
+.section-body {
+  font-size: 1.05rem;
+  color: var(--muted);
+  max-width: 560px;
+  line-height: 1.8;
+}
+
+/* ─── ABOUT ───────────────────────────── */
+.about {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.about-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6rem;
+  align-items: center;
+}
+
+.about-visual {
+  position: relative;
+}
+.about-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.about-card::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(108,99,255,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.about-card-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+.about-card h3 {
+  font-family: var(--font-head);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 0.75rem;
+}
+.about-card p {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.75;
+}
+.about-card-small {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+.pill {
+  background: rgba(108,99,255,0.15);
+  color: var(--accent2);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.3rem 0.75rem;
+  border-radius: 100px;
+  white-space: nowrap;
+}
+.about-card-small p {
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+/* ─── FOCUS ───────────────────────────── */
+.focus { max-width: 1200px; margin: 0 auto; }
+.focus-header { margin-bottom: 3.5rem; }
+
+.focus-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.focus-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 2rem;
+  transition: all 0.25s;
+  cursor: default;
+}
+.focus-card:hover {
+  border-color: rgba(108,99,255,0.4);
+  background: var(--surface2);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+}
+
+.focus-icon {
+  width: 48px; height: 48px;
+  background: rgba(108,99,255,0.12);
+  border: 1px solid rgba(108,99,255,0.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.focus-card h3 {
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 0.6rem;
+}
+.focus-card p {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* ─── PORTFOLIO ───────────────────────── */
+.portfolio {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.portfolio-inner { max-width: 1200px; margin: 0 auto; }
+.portfolio-header { margin-bottom: 3.5rem; }
+
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.portfolio-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 2rem;
+  transition: all 0.25s;
+}
+.portfolio-card:hover {
+  border-color: rgba(255,255,255,0.15);
+  background: var(--surface2);
+  transform: translateY(-3px);
+}
+
+.portfolio-logo {
+  width: 44px; height: 44px;
+  background: var(--surface2);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--border);
+}
+
+.portfolio-card h3 {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 0.4rem;
+}
+.portfolio-card .tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: rgba(240,180,41,0.1);
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+}
+.portfolio-card p {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.portfolio-footer {
+  margin-top: 3rem;
+  text-align: center;
+}
+
+/* ─── PROCESS ─────────────────────────── */
+.process-inner { max-width: 1200px; margin: 0 auto; }
+.process-header { margin-bottom: 3.5rem; }
+
+.process-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  position: relative;
+}
+
+.process-steps::before {
+  content: '';
+  position: absolute;
+  top: 28px;
+  left: calc(12.5% + 24px);
+  right: calc(12.5% + 24px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
+  opacity: 0.4;
+}
+
+.step {
+  text-align: center;
+  padding: 2rem 1.25rem;
+}
+.step-num {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid rgba(108,99,255,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent2);
+  margin: 0 auto 1.25rem;
+  position: relative;
+  z-index: 1;
+}
+.step h3 {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 0.5rem;
+}
+.step p {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+/* ─── TEAM ────────────────────────────── */
+.team {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.team-inner { max-width: 1200px; margin: 0 auto; }
+.team-header { margin-bottom: 3.5rem; }
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.team-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.25s;
+}
+.team-card:hover {
+  border-color: rgba(108,99,255,0.3);
+  transform: translateY(-3px);
+}
+
+.team-avatar {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-head);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--white);
+  margin: 0 auto 1.25rem;
+}
+
+.team-card h3 {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 0.3rem;
+}
+.team-card .role {
+  font-size: 0.82rem;
+  color: var(--accent2);
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+.team-card p {
+  font-size: 0.83rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ─── CTA ─────────────────────────────── */
+.cta-section {
+  padding: 120px 6vw;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(108,99,255,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.cta-inner {
+  max-width: 700px;
+  margin: 0 auto;
+  position: relative;
+}
+.cta-inner h2 {
+  font-family: var(--font-head);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--white);
+  margin-bottom: 1.25rem;
+  line-height: 1.1;
+}
+.cta-inner h2 em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--accent2) 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.cta-inner p {
+  color: var(--muted);
+  font-size: 1.05rem;
+  margin-bottom: 2.5rem;
+  line-height: 1.75;
+}
+.cta-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ─── FOOTER ──────────────────────────── */
+footer {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  padding: 60px 6vw 40px;
+}
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.footer-top {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 3rem;
+  margin-bottom: 3rem;
+  padding-bottom: 3rem;
+  border-bottom: 1px solid var(--border);
+}
+.footer-brand .logo { font-size: 1.1rem; }
+.footer-brand p {
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin-top: 0.75rem;
+  line-height: 1.7;
+  max-width: 280px;
+}
+.footer-col h4 {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+.footer-col ul { list-style: none; }
+.footer-col ul li { margin-bottom: 0.6rem; }
+.footer-col ul a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.88rem;
+  transition: color 0.2s;
+}
+.footer-col ul a:hover { color: var(--white); }
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.footer-bottom p {
+  font-size: 0.83rem;
+  color: var(--muted);
+}
+.footer-socials {
+  display: flex;
+  gap: 1rem;
+}
+.social-btn {
+  width: 36px; height: 36px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  color: var(--muted);
+}
+.social-btn:hover {
+  border-color: rgba(108,99,255,0.4);
+  color: var(--accent2);
+  background: var(--surface2);
+}
+
+/* ─── RESPONSIVE ──────────────────────── */
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  .about-inner { grid-template-columns: 1fr; gap: 3rem; }
+  .focus-grid { grid-template-columns: 1fr 1fr; }
+  .portfolio-grid { grid-template-columns: 1fr 1fr; }
+  .team-grid { grid-template-columns: 1fr 1fr; }
+  .process-steps { grid-template-columns: 1fr 1fr; }
+  .process-steps::before { display: none; }
+  .footer-top { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 560px) {
+  nav { padding: 0 5vw; }
+  section { padding: 70px 5vw; }
+  .focus-grid { grid-template-columns: 1fr; }
+  .portfolio-grid { grid-template-columns: 1fr; }
+  .team-grid { grid-template-columns: 1fr 1fr; }
+  .process-steps { grid-template-columns: 1fr; }
+  .footer-top { grid-template-columns: 1fr; }
+  .hero-stats { gap: 2rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">Xpert<span>.</span>Ventures</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#focus">Focus</a></li>
+    <li><a href="#portfolio">Portfolio</a></li>
+    <li><a href="#team">Team</a></li>
+    <li><a href="#contact" class="nav-cta">Apply Now</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+
+  <div class="hero-badge">Early Stage Venture Capital</div>
+
+  <h1>
+    We back the<br>
+    <em>boldest founders</em><br>
+    shaping tomorrow.
+  </h1>
+  <p>
+    Xpert Ventures partners with visionary entrepreneurs at the pre-seed and seed stage,
+    providing capital, expertise, and deep networks to turn ambitious ideas into category-defining companies.
+  </p>
+  <div class="hero-actions">
+    <a href="#contact" class="btn-primary">Pitch Your Startup</a>
+    <a href="#portfolio" class="btn-ghost">See Our Portfolio</a>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat-item">
+      <div class="stat-number">50<span>+</span></div>
+      <div class="stat-label">Portfolio Companies</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">$200<span>M+</span></div>
+      <div class="stat-label">Assets Under Management</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">12<span>+</span></div>
+      <div class="stat-label">Unicorn Exits</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">30<span>+</span></div>
+      <div class="stat-label">Countries Reached</div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="about-inner">
+    <div>
+      <div class="section-tag">Who We Are</div>
+      <h2 class="section-title">More than capital — we're your growth partner.</h2>
+      <p class="section-body">
+        Founded by operators and investors who have built and scaled companies from zero to exit,
+        Xpert Ventures brings an unfair advantage to every founder we back.
+        We don't just write checks — we roll up our sleeves.
+      </p>
+      <br><br>
+      <p class="section-body">
+        Our thesis is simple: the best companies are built by relentless, resilient founders who combine
+        deep domain expertise with the hunger to break convention. We find them early, believe in them completely,
+        and support them at every inflection point.
+      </p>
+    </div>
+
+    <div class="about-visual">
+      <div class="about-card">
+        <div class="about-card-icon">🎯</div>
+        <h3>Conviction-First Investing</h3>
+        <p>We take concentrated positions in founders we genuinely believe in — not spray-and-pray portfolios. Our conviction means we're invested in your success far beyond the term sheet.</p>
+      </div>
+      <div class="about-card-small">
+        <span class="pill">Pre-seed</span>
+        <p>We enter early, when the vision is clear but the path is uncertain — that's exactly where we thrive.</p>
+      </div>
+      <div class="about-card-small">
+        <span class="pill">Seed</span>
+        <p>Helping you find product-market fit, build your team, and set the foundation for Series A and beyond.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOCUS AREAS -->
+<section id="focus" style="max-width: unset; background: var(--bg);">
+  <div class="focus" style="max-width: 1200px; margin: 0 auto;">
+    <div class="focus-header">
+      <div class="section-tag">Investment Thesis</div>
+      <h2 class="section-title">Where we invest.</h2>
+      <p class="section-body">We focus on sectors where technology unlocks exponential value and where exceptional founders can create lasting moats.</p>
+    </div>
+
+    <div class="focus-grid">
+      <div class="focus-card">
+        <div class="focus-icon">🤖</div>
+        <h3>Artificial Intelligence</h3>
+        <p>Foundation models, applied AI, and vertical SaaS products powered by machine intelligence that reshape how industries operate.</p>
+      </div>
+      <div class="focus-card">
+        <div class="focus-icon">🔗</div>
+        <h3>Web3 & Fintech</h3>
+        <p>Decentralized infrastructure, digital assets, and next-generation financial primitives that democratize access to capital and value.</p>
+      </div>
+      <div class="focus-card">
+        <div class="focus-icon">🏥</div>
+        <h3>Digital Health</h3>
+        <p>Technology-first healthcare companies reimagining patient experience, diagnostics, and the delivery of care at scale.</p>
+      </div>
+      <div class="focus-card">
+        <div class="focus-icon">🌍</div>
+        <h3>Climate Tech</h3>
+        <p>Clean energy, carbon markets, and sustainable infrastructure that address humanity's most urgent environmental challenges.</p>
+      </div>
+      <div class="focus-card">
+        <div class="focus-icon">🛠️</div>
+        <h3>Dev Tools & Infrastructure</h3>
+        <p>Platforms, APIs, and tooling that make software development faster, more reliable, and more accessible for builders everywhere.</p>
+      </div>
+      <div class="focus-card">
+        <div class="focus-icon">📦</div>
+        <h3>Future of Commerce</h3>
+        <p>Supply chain innovation, next-gen logistics, and the reinvention of how goods and services flow through the global economy.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section class="portfolio" id="portfolio">
+  <div class="portfolio-inner">
+    <div class="portfolio-header">
+      <div class="section-tag">Portfolio</div>
+      <h2 class="section-title">Companies we believe in.</h2>
+      <p class="section-body">A snapshot of the founders and companies we've been privileged to back on their journey from idea to impact.</p>
+    </div>
+
+    <div class="portfolio-grid">
+      <div class="portfolio-card">
+        <div class="portfolio-logo">⚡</div>
+        <h3>NeuralFlow</h3>
+        <span class="tag">AI / SaaS</span>
+        <p>Automating complex enterprise workflows with adaptive AI agents. 10× faster deployment for Fortune 500 clients.</p>
+      </div>
+      <div class="portfolio-card">
+        <div class="portfolio-logo">🔐</div>
+        <h3>ChainVault</h3>
+        <span class="tag">Web3 / Security</span>
+        <p>Institutional-grade self-custody infrastructure trusted by banks and sovereign wealth funds across 20 countries.</p>
+      </div>
+      <div class="portfolio-card">
+        <div class="portfolio-logo">🧬</div>
+        <h3>HealthOS</h3>
+        <span class="tag">Digital Health</span>
+        <p>Operating system for clinics and hospitals — streamlining patient flow, billing, and diagnostics in one platform.</p>
+      </div>
+      <div class="portfolio-card">
+        <div class="portfolio-logo">🌱</div>
+        <h3>CarbonLedger</h3>
+        <span class="tag">Climate Tech</span>
+        <p>Transparent, verifiable carbon credit marketplace connecting corporations with certified offset projects globally.</p>
+      </div>
+      <div class="portfolio-card">
+        <div class="portfolio-logo">🚀</div>
+        <h3>LaunchKit</h3>
+        <span class="tag">Dev Tools</span>
+        <p>Helping 50,000+ developers ship production-ready APIs in minutes with auto-generated SDKs and live documentation.</p>
+      </div>
+      <div class="portfolio-card">
+        <div class="portfolio-logo">📊</div>
+        <h3>TradeNova</h3>
+        <span class="tag">Fintech</span>
+        <p>Cross-border B2B payments and FX platform reducing transaction costs by up to 80% for emerging market SMEs.</p>
+      </div>
+    </div>
+
+    <div class="portfolio-footer">
+      <a href="#contact" class="btn-ghost">View Full Portfolio →</a>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section style="background: var(--bg);">
+  <div class="process-inner">
+    <div class="process-header">
+      <div class="section-tag">How We Work</div>
+      <h2 class="section-title">From first meeting to funded.</h2>
+      <p class="section-body">We move fast because we know your time is your most precious resource. Our process is designed to respect that.</p>
+    </div>
+
+    <div class="process-steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Introductory Call</h3>
+        <p>A 30-minute conversation to understand your vision, traction, and what you're building. No deck required for the first call.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>Deep Dive</h3>
+        <p>We get hands-on — reviewing your product, market, team, and financials. We ask hard questions because we care about building something real.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Partner Meeting</h3>
+        <p>Meet the full Xpert team. This is collaborative, not an interrogation — we want you to evaluate us as much as we evaluate you.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <h3>Term Sheet</h3>
+        <p>If there's mutual conviction, we move to a term sheet within days. Founder-friendly terms, transparent process, no games.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="team" id="team">
+  <div class="team-inner">
+    <div class="team-header">
+      <div class="section-tag">The Team</div>
+      <h2 class="section-title">Built by operators, for founders.</h2>
+      <p class="section-body">Every partner on our team has been in the founder seat — we know what it takes because we've lived it.</p>
+    </div>
+
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-avatar">AK</div>
+        <h3>Adam Khalil</h3>
+        <div class="role">Managing Partner</div>
+        <p>3× founder. Previously built and exited two B2B SaaS companies. Led 80+ investments across MENA and Europe.</p>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">SR</div>
+        <h3>Sara Riad</h3>
+        <div class="role">General Partner</div>
+        <p>Ex-Goldman Sachs. Specialist in fintech and blockchain infrastructure. Advisor to 15 unicorns globally.</p>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">MB</div>
+        <h3>Marc Bouchard</h3>
+        <div class="role">Partner, Deep Tech</div>
+        <p>PhD Computer Science, MIT. Former CTO at two AI startups. Focused on AI, dev tools, and infrastructure.</p>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">LN</div>
+        <h3>Layla Nasser</h3>
+        <div class="role">Partner, Operations</div>
+        <p>10 years scaling startups from Series A to IPO. Expert in go-to-market strategy, recruiting, and growth.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contact">
+  <div class="cta-glow"></div>
+  <div class="cta-inner">
+    <div class="section-tag">Get In Touch</div>
+    <h2>Ready to build something <em>extraordinary?</em></h2>
+    <p>
+      Whether you're raising your first check or your second round, we want to hear from you.
+      Send us a brief intro and we'll get back within 48 hours.
+    </p>
+    <div class="cta-actions">
+      <a href="mailto:founders@xpert.ventures" class="btn-primary">founders@xpert.ventures</a>
+      <a href="#about" class="btn-ghost">Learn More About Us</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#" class="logo">Xpert<span>.</span>Ventures</a>
+        <p>Partnering with exceptional founders at the earliest stages to build the companies that define the next decade.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#about">About Us</a></li>
+          <li><a href="#team">Our Team</a></li>
+          <li><a href="#portfolio">Portfolio</a></li>
+          <li><a href="#focus">Thesis</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>For Founders</h4>
+        <ul>
+          <li><a href="#contact">Apply for Funding</a></li>
+          <li><a href="#contact">Submit a Deck</a></li>
+          <li><a href="#">FAQs</a></li>
+          <li><a href="#">Resources</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="#">LinkedIn</a></li>
+          <li><a href="#">Twitter / X</a></li>
+          <li><a href="#">Medium</a></li>
+          <li><a href="mailto:hello@xpert.ventures">hello@xpert.ventures</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Xpert Ventures. All rights reserved.</p>
+      <div class="footer-socials">
+        <a href="#" class="social-btn" title="LinkedIn">in</a>
+        <a href="#" class="social-btn" title="Twitter">𝕏</a>
+        <a href="#" class="social-btn" title="Email">✉</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
