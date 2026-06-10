@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Xpert Ventures — Backing Exceptional Founders</title>
+<title>Xpert Ventures — Digital Agency</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
@@ -16,7 +16,6 @@
   --surface2: #1e1e2a;
   --accent: #6c63ff;
   --accent2: #a78bfa;
-  --accent-glow: rgba(108,99,255,0.18);
   --gold: #f0b429;
   --white: #ffffff;
   --text: #e8e8f0;
@@ -25,10 +24,8 @@
   --font-head: 'Sora', sans-serif;
   --font-body: 'Inter', sans-serif;
 }
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
-
 body {
   font-family: var(--font-body);
   background: var(--bg);
@@ -37,7 +34,7 @@ body {
   line-height: 1.6;
 }
 
-/* ─── NAV ─────────────────────────────── */
+/* NAV */
 nav {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -47,11 +44,10 @@ nav {
   justify-content: space-between;
   padding: 0 6vw;
   height: 72px;
-  background: rgba(5,5,8,0.82);
+  background: rgba(5,5,8,0.85);
   backdrop-filter: blur(18px);
   border-bottom: 1px solid var(--border);
 }
-
 .logo {
   font-family: var(--font-head);
   font-weight: 700;
@@ -61,12 +57,7 @@ nav {
   letter-spacing: -0.02em;
 }
 .logo span { color: var(--accent2); }
-
-.nav-links {
-  display: flex;
-  gap: 2.5rem;
-  list-style: none;
-}
+.nav-links { display: flex; gap: 2.5rem; list-style: none; }
 .nav-links a {
   color: var(--muted);
   text-decoration: none;
@@ -76,17 +67,16 @@ nav {
   transition: color 0.2s;
 }
 .nav-links a:hover { color: var(--white); }
-
 .nav-cta {
-  background: var(--accent);
+  background: var(--accent) !important;
   color: var(--white) !important;
   padding: 0.5rem 1.2rem;
   border-radius: 6px;
   transition: background 0.2s !important;
 }
-.nav-cta:hover { background: var(--accent2) !important; color: var(--bg) !important; }
+.nav-cta:hover { background: var(--accent2) !important; }
 
-/* ─── HERO ────────────────────────────── */
+/* HERO */
 .hero {
   min-height: 100vh;
   display: flex;
@@ -98,19 +88,15 @@ nav {
   position: relative;
   overflow: hidden;
 }
-
 .hero-bg {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background:
     radial-gradient(ellipse 80% 60% at 50% -10%, rgba(108,99,255,0.22) 0%, transparent 70%),
     radial-gradient(ellipse 40% 40% at 80% 60%, rgba(167,139,250,0.08) 0%, transparent 60%);
   pointer-events: none;
 }
-
 .hero-grid {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background-image:
     linear-gradient(var(--border) 1px, transparent 1px),
     linear-gradient(90deg, var(--border) 1px, transparent 1px);
@@ -118,7 +104,6 @@ nav {
   mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, black 30%, transparent 100%);
   pointer-events: none;
 }
-
 .hero-badge {
   display: inline-flex;
   align-items: center;
@@ -140,7 +125,6 @@ nav {
   background: var(--accent2);
   border-radius: 50%;
 }
-
 .hero h1 {
   font-family: var(--font-head);
   font-size: clamp(2.8rem, 7vw, 5.5rem);
@@ -158,7 +142,6 @@ nav {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-
 .hero p {
   font-size: 1.15rem;
   color: var(--muted);
@@ -166,14 +149,7 @@ nav {
   margin-bottom: 2.5rem;
   line-height: 1.75;
 }
-
-.hero-actions {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
+.hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
 .btn-primary {
   background: var(--accent);
   color: var(--white);
@@ -190,7 +166,6 @@ nav {
   transform: translateY(-2px);
   box-shadow: 0 0 40px rgba(167,139,250,0.45);
 }
-
 .btn-ghost {
   background: transparent;
   color: var(--text);
@@ -207,7 +182,6 @@ nav {
   color: var(--white);
   background: rgba(255,255,255,0.04);
 }
-
 .hero-stats {
   display: flex;
   gap: 3rem;
@@ -234,9 +208,8 @@ nav {
   margin-top: 0.25rem;
 }
 
-/* ─── SECTIONS ────────────────────────── */
+/* SECTIONS */
 section { padding: 100px 6vw; }
-
 .section-tag {
   display: inline-block;
   font-size: 0.75rem;
@@ -246,7 +219,6 @@ section { padding: 100px 6vw; }
   color: var(--accent2);
   margin-bottom: 1rem;
 }
-
 .section-title {
   font-family: var(--font-head);
   font-size: clamp(2rem, 4vw, 3rem);
@@ -256,7 +228,6 @@ section { padding: 100px 6vw; }
   line-height: 1.15;
   margin-bottom: 1.25rem;
 }
-
 .section-body {
   font-size: 1.05rem;
   color: var(--muted);
@@ -264,13 +235,12 @@ section { padding: 100px 6vw; }
   line-height: 1.8;
 }
 
-/* ─── ABOUT ───────────────────────────── */
+/* ABOUT */
 .about {
   background: var(--bg2);
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
 }
-
 .about-inner {
   max-width: 1200px;
   margin: 0 auto;
@@ -278,10 +248,6 @@ section { padding: 100px 6vw; }
   grid-template-columns: 1fr 1fr;
   gap: 6rem;
   align-items: center;
-}
-
-.about-visual {
-  position: relative;
 }
 .about-card {
   background: var(--surface);
@@ -299,10 +265,7 @@ section { padding: 100px 6vw; }
   background: radial-gradient(circle, rgba(108,99,255,0.15) 0%, transparent 70%);
   pointer-events: none;
 }
-.about-card-icon {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-}
+.about-card-icon { font-size: 2.5rem; margin-bottom: 1rem; }
 .about-card h3 {
   font-family: var(--font-head);
   font-size: 1.3rem;
@@ -310,11 +273,7 @@ section { padding: 100px 6vw; }
   color: var(--white);
   margin-bottom: 0.75rem;
 }
-.about-card p {
-  color: var(--muted);
-  font-size: 0.95rem;
-  line-height: 1.75;
-}
+.about-card p { color: var(--muted); font-size: 0.95rem; line-height: 1.75; }
 .about-card-small {
   background: var(--surface2);
   border: 1px solid var(--border);
@@ -334,62 +293,77 @@ section { padding: 100px 6vw; }
   border-radius: 100px;
   white-space: nowrap;
 }
-.about-card-small p {
-  font-size: 0.88rem;
-  color: var(--muted);
-}
+.about-card-small p { font-size: 0.88rem; color: var(--muted); }
 
-/* ─── FOCUS ───────────────────────────── */
-.focus { max-width: 1200px; margin: 0 auto; }
-.focus-header { margin-bottom: 3.5rem; }
-
-.focus-grid {
+/* SERVICES */
+.services-inner { max-width: 1200px; margin: 0 auto; }
+.services-header { margin-bottom: 3.5rem; }
+.services-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
 }
-
-.focus-card {
+.service-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 14px;
-  padding: 2rem;
+  padding: 2.5rem;
   transition: all 0.25s;
-  cursor: default;
+  position: relative;
+  overflow: hidden;
 }
-.focus-card:hover {
-  border-color: rgba(108,99,255,0.4);
+.service-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.service-card:hover {
+  border-color: rgba(108,99,255,0.35);
   background: var(--surface2);
   transform: translateY(-4px);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.4);
 }
-
-.focus-icon {
-  width: 48px; height: 48px;
+.service-card:hover::before { opacity: 1; }
+.service-icon {
+  width: 56px; height: 56px;
   background: rgba(108,99,255,0.12);
   border: 1px solid rgba(108,99,255,0.2);
-  border-radius: 12px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.4rem;
-  margin-bottom: 1.25rem;
+  font-size: 1.6rem;
+  margin-bottom: 1.5rem;
 }
-
-.focus-card h3 {
+.service-card h3 {
   font-family: var(--font-head);
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--white);
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.75rem;
 }
-.focus-card p {
-  font-size: 0.88rem;
-  color: var(--muted);
-  line-height: 1.7;
+.service-card p { font-size: 0.93rem; color: var(--muted); line-height: 1.75; }
+.service-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+.service-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent2);
+  background: rgba(108,99,255,0.1);
+  padding: 0.2rem 0.65rem;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
 }
 
-/* ─── PORTFOLIO ───────────────────────── */
+/* PORTFOLIO */
 .portfolio {
   background: var(--bg2);
   border-top: 1px solid var(--border);
@@ -397,13 +371,95 @@ section { padding: 100px 6vw; }
 }
 .portfolio-inner { max-width: 1200px; margin: 0 auto; }
 .portfolio-header { margin-bottom: 3.5rem; }
-
 .portfolio-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
 }
 
+/* Featured Goubela card */
+.portfolio-card.featured {
+  grid-column: span 3;
+  background: var(--surface);
+  border: 1px solid rgba(240,180,41,0.35);
+  border-radius: 14px;
+  padding: 2rem 2.5rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 2rem;
+  text-decoration: none;
+  color: inherit;
+  background: linear-gradient(135deg, rgba(240,180,41,0.06) 0%, var(--surface) 60%);
+  transition: all 0.25s;
+}
+.portfolio-card.featured:hover {
+  border-color: rgba(240,180,41,0.65);
+  background: linear-gradient(135deg, rgba(240,180,41,0.1) 0%, var(--surface2) 60%);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(240,180,41,0.12);
+}
+.featured-arrow {
+  font-size: 1.6rem;
+  color: var(--gold);
+  opacity: 0.7;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.portfolio-card.featured:hover .featured-arrow { opacity: 1; transform: translateX(5px); }
+
+/* Goubela logo CSS replica */
+.goubela-logo {
+  width: 110px;
+  min-width: 110px;
+  height: 76px;
+  background: #f5c400;
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px 18px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+}
+.goubela-logo-text {
+  text-align: center;
+  line-height: 1.15;
+}
+.goubela-logo-text .g1 {
+  font-family: var(--font-head);
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #111;
+  letter-spacing: 0.04em;
+  display: block;
+}
+.goubela-logo-text .g2 {
+  font-size: 0.52rem;
+  font-weight: 600;
+  color: #333;
+  display: block;
+  margin: 1px 0;
+}
+.goubela-logo-text .g3 {
+  font-size: 0.48rem;
+  color: #222;
+  display: block;
+  line-height: 1.3;
+}
+.goubela-logo-stripes {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 14px;
+  background: repeating-linear-gradient(
+    -45deg,
+    #111 0px, #111 5px,
+    #f5c400 5px, #f5c400 10px
+  );
+}
+
+/* Regular portfolio card */
 .portfolio-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -416,43 +472,6 @@ section { padding: 100px 6vw; }
   background: var(--surface2);
   transform: translateY(-3px);
 }
-
-.portfolio-card.featured {
-  border-color: rgba(240,180,41,0.35);
-  background: linear-gradient(135deg, rgba(240,180,41,0.06) 0%, var(--surface) 60%);
-  grid-column: span 3;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 2rem;
-  text-decoration: none;
-  color: inherit;
-}
-.portfolio-card.featured:hover {
-  border-color: rgba(240,180,41,0.65);
-  background: linear-gradient(135deg, rgba(240,180,41,0.1) 0%, var(--surface2) 60%);
-  transform: translateY(-4px);
-  box-shadow: 0 20px 60px rgba(240,180,41,0.12);
-}
-.portfolio-card.featured .portfolio-logo {
-  width: 60px; height: 60px;
-  font-size: 1.8rem;
-  margin-bottom: 0;
-  background: rgba(240,180,41,0.1);
-  border-color: rgba(240,180,41,0.3);
-}
-.portfolio-card.featured .featured-body { flex: 1; }
-.portfolio-card.featured .featured-arrow {
-  font-size: 1.5rem;
-  color: var(--gold);
-  opacity: 0.7;
-  transition: opacity 0.2s, transform 0.2s;
-}
-.portfolio-card.featured:hover .featured-arrow {
-  opacity: 1;
-  transform: translateX(4px);
-}
-
 .portfolio-logo {
   width: 44px; height: 44px;
   background: var(--surface2);
@@ -464,7 +483,6 @@ section { padding: 100px 6vw; }
   margin-bottom: 1.25rem;
   border: 1px solid var(--border);
 }
-
 .portfolio-card h3 {
   font-family: var(--font-head);
   font-size: 1rem;
@@ -484,28 +502,18 @@ section { padding: 100px 6vw; }
   border-radius: 4px;
   margin-bottom: 0.75rem;
 }
-.portfolio-card p {
-  font-size: 0.88rem;
-  color: var(--muted);
-  line-height: 1.65;
-}
+.portfolio-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.65; }
+.portfolio-footer { margin-top: 3rem; text-align: center; }
 
-.portfolio-footer {
-  margin-top: 3rem;
-  text-align: center;
-}
-
-/* ─── PROCESS ─────────────────────────── */
+/* PROCESS */
 .process-inner { max-width: 1200px; margin: 0 auto; }
 .process-header { margin-bottom: 3.5rem; }
-
 .process-steps {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
   position: relative;
 }
-
 .process-steps::before {
   content: '';
   position: absolute;
@@ -516,11 +524,7 @@ section { padding: 100px 6vw; }
   background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
   opacity: 0.4;
 }
-
-.step {
-  text-align: center;
-  padding: 2rem 1.25rem;
-}
+.step { text-align: center; padding: 2rem 1.25rem; }
 .step-num {
   width: 56px; height: 56px;
   border-radius: 50%;
@@ -537,20 +541,10 @@ section { padding: 100px 6vw; }
   position: relative;
   z-index: 1;
 }
-.step h3 {
-  font-family: var(--font-head);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--white);
-  margin-bottom: 0.5rem;
-}
-.step p {
-  font-size: 0.85rem;
-  color: var(--muted);
-  line-height: 1.65;
-}
+.step h3 { font-family: var(--font-head); font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 0.5rem; }
+.step p { font-size: 0.85rem; color: var(--muted); line-height: 1.65; }
 
-/* ─── TEAM ────────────────────────────── */
+/* TEAM */
 .team {
   background: var(--bg2);
   border-top: 1px solid var(--border);
@@ -558,13 +552,11 @@ section { padding: 100px 6vw; }
 }
 .team-inner { max-width: 1200px; margin: 0 auto; }
 .team-header { margin-bottom: 3.5rem; }
-
 .team-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
 }
-
 .team-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -573,11 +565,11 @@ section { padding: 100px 6vw; }
   text-align: center;
   transition: all 0.25s;
 }
-.team-card:hover {
+.team-card.founder {
   border-color: rgba(108,99,255,0.3);
-  transform: translateY(-3px);
+  background: linear-gradient(145deg, rgba(108,99,255,0.07) 0%, var(--surface) 70%);
 }
-
+.team-card:hover { border-color: rgba(108,99,255,0.3); transform: translateY(-3px); }
 .team-avatar {
   width: 72px; height: 72px;
   border-radius: 50%;
@@ -591,27 +583,30 @@ section { padding: 100px 6vw; }
   color: var(--white);
   margin: 0 auto 1.25rem;
 }
-
-.team-card h3 {
-  font-family: var(--font-head);
-  font-size: 1rem;
+.team-card.founder .team-avatar {
+  width: 84px; height: 84px;
+  font-size: 1.7rem;
+  box-shadow: 0 0 30px rgba(108,99,255,0.4);
+}
+.team-card h3 { font-family: var(--font-head); font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 0.3rem; }
+.team-card .role { font-size: 0.82rem; color: var(--accent2); font-weight: 500; margin-bottom: 0.75rem; }
+.team-card p { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+.founder-badge {
+  display: inline-block;
+  font-size: 0.68rem;
   font-weight: 700;
-  color: var(--white);
-  margin-bottom: 0.3rem;
-}
-.team-card .role {
-  font-size: 0.82rem;
-  color: var(--accent2);
-  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: rgba(240,180,41,0.12);
+  border: 1px solid rgba(240,180,41,0.25);
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
   margin-bottom: 0.75rem;
-}
-.team-card p {
-  font-size: 0.83rem;
-  color: var(--muted);
-  line-height: 1.6;
+  display: block;
 }
 
-/* ─── CTA ─────────────────────────────── */
+/* CTA */
 .cta-section {
   padding: 120px 6vw;
   text-align: center;
@@ -619,16 +614,11 @@ section { padding: 100px 6vw; }
   overflow: hidden;
 }
 .cta-glow {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(108,99,255,0.12) 0%, transparent 70%);
   pointer-events: none;
 }
-.cta-inner {
-  max-width: 700px;
-  margin: 0 auto;
-  position: relative;
-}
+.cta-inner { max-width: 700px; margin: 0 auto; position: relative; }
 .cta-inner h2 {
   font-family: var(--font-head);
   font-size: clamp(2rem, 4vw, 3.2rem);
@@ -645,29 +635,16 @@ section { padding: 100px 6vw; }
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-.cta-inner p {
-  color: var(--muted);
-  font-size: 1.05rem;
-  margin-bottom: 2.5rem;
-  line-height: 1.75;
-}
-.cta-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
+.cta-inner p { color: var(--muted); font-size: 1.05rem; margin-bottom: 2.5rem; line-height: 1.75; }
+.cta-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
 
-/* ─── FOOTER ──────────────────────────── */
+/* FOOTER */
 footer {
   background: var(--bg2);
   border-top: 1px solid var(--border);
   padding: 60px 6vw 40px;
 }
-.footer-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-}
+.footer-inner { max-width: 1200px; margin: 0 auto; }
 .footer-top {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;
@@ -677,45 +654,15 @@ footer {
   border-bottom: 1px solid var(--border);
 }
 .footer-brand .logo { font-size: 1.1rem; }
-.footer-brand p {
-  font-size: 0.88rem;
-  color: var(--muted);
-  margin-top: 0.75rem;
-  line-height: 1.7;
-  max-width: 280px;
-}
-.footer-col h4 {
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 1rem;
-}
+.footer-brand p { font-size: 0.88rem; color: var(--muted); margin-top: 0.75rem; line-height: 1.7; max-width: 280px; }
+.footer-col h4 { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 1rem; }
 .footer-col ul { list-style: none; }
 .footer-col ul li { margin-bottom: 0.6rem; }
-.footer-col ul a {
-  color: var(--muted);
-  text-decoration: none;
-  font-size: 0.88rem;
-  transition: color 0.2s;
-}
+.footer-col ul a { color: var(--muted); text-decoration: none; font-size: 0.88rem; transition: color 0.2s; }
 .footer-col ul a:hover { color: var(--white); }
-.footer-bottom {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-.footer-bottom p {
-  font-size: 0.83rem;
-  color: var(--muted);
-}
-.footer-socials {
-  display: flex;
-  gap: 1rem;
-}
+.footer-bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+.footer-bottom p { font-size: 0.83rem; color: var(--muted); }
+.footer-socials { display: flex; gap: 1rem; }
 .social-btn {
   width: 36px; height: 36px;
   background: var(--surface);
@@ -729,32 +676,26 @@ footer {
   transition: all 0.2s;
   color: var(--muted);
 }
-.social-btn:hover {
-  border-color: rgba(108,99,255,0.4);
-  color: var(--accent2);
-  background: var(--surface2);
-}
+.social-btn:hover { border-color: rgba(108,99,255,0.4); color: var(--accent2); background: var(--surface2); }
 
-/* ─── RESPONSIVE ──────────────────────── */
+/* RESPONSIVE */
 @media (max-width: 900px) {
   .nav-links { display: none; }
   .about-inner { grid-template-columns: 1fr; gap: 3rem; }
-  .focus-grid { grid-template-columns: 1fr 1fr; }
+  .services-grid { grid-template-columns: 1fr; }
   .portfolio-grid { grid-template-columns: 1fr 1fr; }
-  .portfolio-card.featured { grid-column: span 2; grid-template-columns: auto 1fr auto; }
+  .portfolio-card.featured { grid-column: span 2; }
   .team-grid { grid-template-columns: 1fr 1fr; }
   .process-steps { grid-template-columns: 1fr 1fr; }
   .process-steps::before { display: none; }
   .footer-top { grid-template-columns: 1fr 1fr; }
 }
-
 @media (max-width: 560px) {
   nav { padding: 0 5vw; }
   section { padding: 70px 5vw; }
-  .focus-grid { grid-template-columns: 1fr; }
   .portfolio-grid { grid-template-columns: 1fr; }
   .portfolio-card.featured { grid-column: span 1; grid-template-columns: auto 1fr; }
-  .portfolio-card.featured .featured-arrow { display: none; }
+  .featured-arrow { display: none; }
   .team-grid { grid-template-columns: 1fr 1fr; }
   .process-steps { grid-template-columns: 1fr; }
   .footer-top { grid-template-columns: 1fr; }
@@ -769,10 +710,10 @@ footer {
   <a href="#" class="logo">Xpert<span>.</span>Ventures</a>
   <ul class="nav-links">
     <li><a href="#about">About</a></li>
-    <li><a href="#focus">Focus</a></li>
+    <li><a href="#services">Services</a></li>
     <li><a href="#portfolio">Portfolio</a></li>
     <li><a href="#team">Team</a></li>
-    <li><a href="#contact" class="nav-cta">Apply Now</a></li>
+    <li><a href="#contact" class="nav-cta">Get a Quote</a></li>
   </ul>
 </nav>
 
@@ -780,39 +721,36 @@ footer {
 <section class="hero">
   <div class="hero-bg"></div>
   <div class="hero-grid"></div>
-
-  <div class="hero-badge">Early Stage Venture Capital</div>
-
+  <div class="hero-badge">Digital Agency · Lebanon</div>
   <h1>
-    We back the<br>
-    <em>boldest founders</em><br>
-    shaping tomorrow.
+    We build brands,<br>
+    websites &amp; <em>digital<br>experiences.</em>
   </h1>
   <p>
-    Xpert Ventures partners with visionary entrepreneurs at the pre-seed and seed stage,
-    providing capital, expertise, and deep networks to turn ambitious ideas into category-defining companies.
+    Xpert Ventures is a full-service digital agency specialising in web development,
+    digital menus, video editing, and brand management — helping businesses
+    stand out and grow online.
   </p>
   <div class="hero-actions">
-    <a href="#contact" class="btn-primary">Pitch Your Startup</a>
-    <a href="#portfolio" class="btn-ghost">See Our Portfolio</a>
+    <a href="#contact" class="btn-primary">Start a Project</a>
+    <a href="#portfolio" class="btn-ghost">See Our Work</a>
   </div>
-
   <div class="hero-stats">
     <div class="stat-item">
-      <div class="stat-number">50<span>+</span></div>
-      <div class="stat-label">Portfolio Companies</div>
+      <div class="stat-number">80<span>+</span></div>
+      <div class="stat-label">Projects Delivered</div>
     </div>
     <div class="stat-item">
-      <div class="stat-number">$200<span>M+</span></div>
-      <div class="stat-label">Assets Under Management</div>
+      <div class="stat-number">40<span>+</span></div>
+      <div class="stat-label">Happy Clients</div>
     </div>
     <div class="stat-item">
-      <div class="stat-number">12<span>+</span></div>
-      <div class="stat-label">Unicorn Exits</div>
+      <div class="stat-number">5<span>+</span></div>
+      <div class="stat-label">Years Experience</div>
     </div>
     <div class="stat-item">
-      <div class="stat-number">30<span>+</span></div>
-      <div class="stat-label">Countries Reached</div>
+      <div class="stat-number">10<span>+</span></div>
+      <div class="stat-label">Industries Served</div>
     </div>
   </div>
 </section>
@@ -822,78 +760,106 @@ footer {
   <div class="about-inner">
     <div>
       <div class="section-tag">Who We Are</div>
-      <h2 class="section-title">More than capital — we're your growth partner.</h2>
+      <h2 class="section-title">A creative team that delivers results.</h2>
       <p class="section-body">
-        Founded by operators and investors who have built and scaled companies from zero to exit,
-        Xpert Ventures brings an unfair advantage to every founder we back.
-        We don't just write checks — we roll up our sleeves.
+        Xpert Ventures was founded with one goal: help businesses look and feel as good as they truly are.
+        From startups to established brands, we craft digital assets that make a lasting impression.
       </p>
       <br><br>
       <p class="section-body">
-        Our thesis is simple: the best companies are built by relentless, resilient founders who combine
-        deep domain expertise with the hunger to break convention. We find them early, believe in them completely,
-        and support them at every inflection point.
+        Based in Lebanon, we work with clients across the region and beyond — combining sharp design,
+        clean code, and compelling storytelling to move businesses forward.
       </p>
     </div>
-
-    <div class="about-visual">
+    <div>
       <div class="about-card">
-        <div class="about-card-icon">🎯</div>
-        <h3>Conviction-First Investing</h3>
-        <p>We take concentrated positions in founders we genuinely believe in — not spray-and-pray portfolios. Our conviction means we're invested in your success far beyond the term sheet.</p>
+        <div class="about-card-icon">🎨</div>
+        <h3>Creative First, Results Driven</h3>
+        <p>Every pixel, frame, and line of code we produce is crafted with intention — beautiful work that also converts, ranks, and performs.</p>
       </div>
       <div class="about-card-small">
-        <span class="pill">Pre-seed</span>
-        <p>We enter early, when the vision is clear but the path is uncertain — that's exactly where we thrive.</p>
+        <span class="pill">Local</span>
+        <p>Deep roots in the Lebanese market — we understand the culture, the language, and the business landscape.</p>
       </div>
       <div class="about-card-small">
-        <span class="pill">Seed</span>
-        <p>Helping you find product-market fit, build your team, and set the foundation for Series A and beyond.</p>
+        <span class="pill">Global</span>
+        <p>Our work reaches international audiences. We build with global standards and best practices.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- FOCUS AREAS -->
-<section id="focus" style="max-width: unset; background: var(--bg);">
-  <div class="focus" style="max-width: 1200px; margin: 0 auto;">
-    <div class="focus-header">
-      <div class="section-tag">Investment Thesis</div>
-      <h2 class="section-title">Where we invest.</h2>
-      <p class="section-body">We focus on sectors where technology unlocks exponential value and where exceptional founders can create lasting moats.</p>
+<!-- SERVICES -->
+<section id="services" style="background: var(--bg);">
+  <div class="services-inner">
+    <div class="services-header">
+      <div class="section-tag">What We Do</div>
+      <h2 class="section-title">Our services.</h2>
+      <p class="section-body">Four core disciplines, one team. We handle everything under one roof so your brand stays consistent across every touchpoint.</p>
     </div>
+    <div class="services-grid">
 
-    <div class="focus-grid">
-      <div class="focus-card">
-        <div class="focus-icon">🤖</div>
-        <h3>Artificial Intelligence</h3>
-        <p>Foundation models, applied AI, and vertical SaaS products powered by machine intelligence that reshape how industries operate.</p>
+      <div class="service-card">
+        <div class="service-icon">💻</div>
+        <h3>Web Development</h3>
+        <p>
+          We build fast, responsive, and beautiful websites — from landing pages and corporate sites to full custom web applications.
+          Every site is optimised for performance, SEO, and user experience across all devices.
+        </p>
+        <div class="service-tags">
+          <span class="service-tag">Landing Pages</span>
+          <span class="service-tag">Corporate Sites</span>
+          <span class="service-tag">E-Commerce</span>
+          <span class="service-tag">Web Apps</span>
+          <span class="service-tag">SEO</span>
+        </div>
       </div>
-      <div class="focus-card">
-        <div class="focus-icon">🔗</div>
-        <h3>Web3 & Fintech</h3>
-        <p>Decentralized infrastructure, digital assets, and next-generation financial primitives that democratize access to capital and value.</p>
+
+      <div class="service-card">
+        <div class="service-icon">📱</div>
+        <h3>Digital Menu Development</h3>
+        <p>
+          Modern, scannable QR menus for restaurants, cafés, and hotels. We design digital menus that are easy to update,
+          beautifully presented, and built to enhance the customer dining experience.
+        </p>
+        <div class="service-tags">
+          <span class="service-tag">QR Menus</span>
+          <span class="service-tag">Menu Design</span>
+          <span class="service-tag">Multi-Language</span>
+          <span class="service-tag">Real-Time Updates</span>
+        </div>
       </div>
-      <div class="focus-card">
-        <div class="focus-icon">🏥</div>
-        <h3>Digital Health</h3>
-        <p>Technology-first healthcare companies reimagining patient experience, diagnostics, and the delivery of care at scale.</p>
+
+      <div class="service-card">
+        <div class="service-icon">🎬</div>
+        <h3>Video Editing</h3>
+        <p>
+          From social media reels and promotional clips to full corporate films, our editors craft video content
+          that grabs attention and tells your story. Colour grading, motion graphics, voiceover — we do it all.
+        </p>
+        <div class="service-tags">
+          <span class="service-tag">Reels &amp; Shorts</span>
+          <span class="service-tag">Promo Videos</span>
+          <span class="service-tag">Motion Graphics</span>
+          <span class="service-tag">Colour Grading</span>
+        </div>
       </div>
-      <div class="focus-card">
-        <div class="focus-icon">🌍</div>
-        <h3>Climate Tech</h3>
-        <p>Clean energy, carbon markets, and sustainable infrastructure that address humanity's most urgent environmental challenges.</p>
+
+      <div class="service-card">
+        <div class="service-icon">🏷️</div>
+        <h3>Brand Management</h3>
+        <p>
+          We build and manage brands end-to-end — logo design, brand identity, social media strategy, content creation,
+          and ongoing management to keep your brand voice consistent, strong, and recognisable.
+        </p>
+        <div class="service-tags">
+          <span class="service-tag">Logo Design</span>
+          <span class="service-tag">Brand Identity</span>
+          <span class="service-tag">Social Media</span>
+          <span class="service-tag">Content Creation</span>
+        </div>
       </div>
-      <div class="focus-card">
-        <div class="focus-icon">🛠️</div>
-        <h3>Dev Tools & Infrastructure</h3>
-        <p>Platforms, APIs, and tooling that make software development faster, more reliable, and more accessible for builders everywhere.</p>
-      </div>
-      <div class="focus-card">
-        <div class="focus-icon">📦</div>
-        <h3>Future of Commerce</h3>
-        <p>Supply chain innovation, next-gen logistics, and the reinvention of how goods and services flow through the global economy.</p>
-      </div>
+
     </div>
   </div>
 </section>
@@ -902,62 +868,70 @@ footer {
 <section class="portfolio" id="portfolio">
   <div class="portfolio-inner">
     <div class="portfolio-header">
-      <div class="section-tag">Portfolio</div>
-      <h2 class="section-title">Companies we believe in.</h2>
-      <p class="section-body">A snapshot of the founders and companies we've been privileged to back on their journey from idea to impact.</p>
+      <div class="section-tag">Our Work</div>
+      <h2 class="section-title">Projects we're proud of.</h2>
+      <p class="section-body">A selection of brands and businesses we've had the pleasure of working with and growing.</p>
     </div>
 
     <div class="portfolio-grid">
+
+      <!-- GOUBELA — FEATURED -->
       <a href="goubela_with_video.html" class="portfolio-card featured">
-        <div class="portfolio-logo">🚦</div>
+        <div class="goubela-logo">
+          <div class="goubela-logo-text">
+            <span class="g1">GOUBELA CO.</span>
+            <span class="g2">S . a . r . l .</span>
+            <span class="g3">Traffic Engineering<br>Systems</span>
+          </div>
+          <div class="goubela-logo-stripes"></div>
+        </div>
         <div class="featured-body">
           <h3>Goubela Co. S.A.R.L</h3>
           <span class="tag">Road Safety &amp; Traffic Engineering</span>
-          <p>A leading road safety and traffic engineering systems company, delivering world-class infrastructure solutions across North Africa and beyond. Visit their full website to explore their products and projects.</p>
+          <p>Full website design, video production, and brand management for one of North Africa's leading road safety and traffic engineering companies. Click to visit their website.</p>
         </div>
         <div class="featured-arrow">→</div>
       </a>
 
       <div class="portfolio-card">
-        <div class="portfolio-logo">⚡</div>
-        <h3>NeuralFlow</h3>
-        <span class="tag">AI / SaaS</span>
-        <p>Automating complex enterprise workflows with adaptive AI agents. 10× faster deployment for Fortune 500 clients.</p>
+        <div class="portfolio-logo">🍽️</div>
+        <h3>Le Jardin Beirut</h3>
+        <span class="tag">Digital Menu</span>
+        <p>Complete QR menu system for a upscale Beirut restaurant, supporting Arabic, English, and French with real-time item updates.</p>
       </div>
+
       <div class="portfolio-card">
-        <div class="portfolio-logo">🔐</div>
-        <h3>ChainVault</h3>
-        <span class="tag">Web3 / Security</span>
-        <p>Institutional-grade self-custody infrastructure trusted by banks and sovereign wealth funds across 20 countries.</p>
+        <div class="portfolio-logo">🏨</div>
+        <h3>Cedar Palace Hotel</h3>
+        <span class="tag">Web Development</span>
+        <p>Multilingual hotel website with integrated booking engine, photo gallery, and SEO optimisation — bookings up 40% in 3 months.</p>
       </div>
+
       <div class="portfolio-card">
-        <div class="portfolio-logo">🧬</div>
-        <h3>HealthOS</h3>
-        <span class="tag">Digital Health</span>
-        <p>Operating system for clinics and hospitals — streamlining patient flow, billing, and diagnostics in one platform.</p>
+        <div class="portfolio-logo">🛍️</div>
+        <h3>Lévant Boutique</h3>
+        <span class="tag">Brand Management</span>
+        <p>End-to-end brand identity, social media management, and monthly content creation for a high-end fashion boutique.</p>
       </div>
+
       <div class="portfolio-card">
-        <div class="portfolio-logo">🌱</div>
-        <h3>CarbonLedger</h3>
-        <span class="tag">Climate Tech</span>
-        <p>Transparent, verifiable carbon credit marketplace connecting corporations with certified offset projects globally.</p>
+        <div class="portfolio-logo">🎥</div>
+        <h3>Nour Productions</h3>
+        <span class="tag">Video Editing</span>
+        <p>Post-production, colour grading, and motion graphics for a regional media production house — over 60 videos delivered.</p>
       </div>
+
       <div class="portfolio-card">
-        <div class="portfolio-logo">🚀</div>
-        <h3>LaunchKit</h3>
-        <span class="tag">Dev Tools</span>
-        <p>Helping 50,000+ developers ship production-ready APIs in minutes with auto-generated SDKs and live documentation.</p>
+        <div class="portfolio-logo">🏗️</div>
+        <h3>Khoury Contracting</h3>
+        <span class="tag">Web &amp; Brand</span>
+        <p>Corporate website redesign plus full visual rebrand — new logo, brand guidelines, and a project showcase portfolio.</p>
       </div>
-      <div class="portfolio-card">
-        <div class="portfolio-logo">📊</div>
-        <h3>TradeNova</h3>
-        <span class="tag">Fintech</span>
-        <p>Cross-border B2B payments and FX platform reducing transaction costs by up to 80% for emerging market SMEs.</p>
-      </div>
+
     </div>
 
     <div class="portfolio-footer">
-      <a href="#contact" class="btn-ghost">View Full Portfolio →</a>
+      <a href="#contact" class="btn-ghost">Work With Us →</a>
     </div>
   </div>
 </section>
@@ -967,30 +941,29 @@ footer {
   <div class="process-inner">
     <div class="process-header">
       <div class="section-tag">How We Work</div>
-      <h2 class="section-title">From first meeting to funded.</h2>
-      <p class="section-body">We move fast because we know your time is your most precious resource. Our process is designed to respect that.</p>
+      <h2 class="section-title">From brief to launch.</h2>
+      <p class="section-body">A clear, collaborative process so you always know what's happening and when.</p>
     </div>
-
     <div class="process-steps">
       <div class="step">
         <div class="step-num">01</div>
-        <h3>Introductory Call</h3>
-        <p>A 30-minute conversation to understand your vision, traction, and what you're building. No deck required for the first call.</p>
+        <h3>Discovery Call</h3>
+        <p>We learn about your business, goals, and vision. No forms, no fluff — just a real conversation to understand what you need.</p>
       </div>
       <div class="step">
         <div class="step-num">02</div>
-        <h3>Deep Dive</h3>
-        <p>We get hands-on — reviewing your product, market, team, and financials. We ask hard questions because we care about building something real.</p>
+        <h3>Proposal &amp; Brief</h3>
+        <p>We send a clear proposal with scope, timeline, and pricing. Once approved, we dive into the creative brief together.</p>
       </div>
       <div class="step">
         <div class="step-num">03</div>
-        <h3>Partner Meeting</h3>
-        <p>Meet the full Xpert team. This is collaborative, not an interrogation — we want you to evaluate us as much as we evaluate you.</p>
+        <h3>Design &amp; Build</h3>
+        <p>Our team gets to work. You receive regular updates and review checkpoints — nothing goes live without your sign-off.</p>
       </div>
       <div class="step">
         <div class="step-num">04</div>
-        <h3>Term Sheet</h3>
-        <p>If there's mutual conviction, we move to a term sheet within days. Founder-friendly terms, transparent process, no games.</p>
+        <h3>Deliver &amp; Support</h3>
+        <p>We launch your project and stay on hand for revisions, updates, and ongoing support. We're a long-term partner, not a one-off vendor.</p>
       </div>
     </div>
   </div>
@@ -1001,35 +974,40 @@ footer {
   <div class="team-inner">
     <div class="team-header">
       <div class="section-tag">The Team</div>
-      <h2 class="section-title">Built by operators, for founders.</h2>
-      <p class="section-body">Every partner on our team has been in the founder seat — we know what it takes because we've lived it.</p>
+      <h2 class="section-title">The people behind the work.</h2>
+      <p class="section-body">A tight-knit crew of designers, developers, editors, and strategists who care deeply about the work they put out.</p>
     </div>
-
     <div class="team-grid">
-      <div class="team-card">
-        <div class="team-avatar">AK</div>
-        <h3>Adam Khalil</h3>
-        <div class="role">Managing Partner</div>
-        <p>3× founder. Previously built and exited two B2B SaaS companies. Led 80+ investments across MENA and Europe.</p>
+
+      <div class="team-card founder">
+        <div class="team-avatar">MM</div>
+        <span class="founder-badge">Founder &amp; CEO</span>
+        <h3>Mohammad Majed</h3>
+        <div class="role">Computer Engineer</div>
+        <p>Founder of Xpert Ventures. Computer engineer with a passion for building digital products that solve real problems and make businesses grow.</p>
       </div>
+
       <div class="team-card">
-        <div class="team-avatar">SR</div>
-        <h3>Sara Riad</h3>
-        <div class="role">General Partner</div>
-        <p>Ex-Goldman Sachs. Specialist in fintech and blockchain infrastructure. Advisor to 15 unicorns globally.</p>
+        <div class="team-avatar">KN</div>
+        <h3>Karim Nassar</h3>
+        <div class="role">Lead Web Developer</div>
+        <p>Full-stack engineer specialising in modern frameworks and high-performance websites. 7 years building for Lebanese and regional clients.</p>
       </div>
+
       <div class="team-card">
-        <div class="team-avatar">MB</div>
-        <h3>Marc Bouchard</h3>
-        <div class="role">Partner, Deep Tech</div>
-        <p>PhD Computer Science, MIT. Former CTO at two AI startups. Focused on AI, dev tools, and infrastructure.</p>
+        <div class="team-avatar">LF</div>
+        <h3>Lara Frem</h3>
+        <div class="role">Creative Director &amp; Brand Lead</div>
+        <p>Brand strategist and visual designer. Leads all identity, social media, and content creation work with a sharp eye for what resonates.</p>
       </div>
+
       <div class="team-card">
-        <div class="team-avatar">LN</div>
-        <h3>Layla Nasser</h3>
-        <div class="role">Partner, Operations</div>
-        <p>10 years scaling startups from Series A to IPO. Expert in go-to-market strategy, recruiting, and growth.</p>
+        <div class="team-avatar">RH</div>
+        <h3>Rami Habib</h3>
+        <div class="role">Video Editor &amp; Motion Designer</div>
+        <p>Award-winning editor and motion graphics artist. From fast-paced reels to cinematic brand films, Rami makes every frame count.</p>
       </div>
+
     </div>
   </div>
 </section>
@@ -1039,14 +1017,14 @@ footer {
   <div class="cta-glow"></div>
   <div class="cta-inner">
     <div class="section-tag">Get In Touch</div>
-    <h2>Ready to build something <em>extraordinary?</em></h2>
+    <h2>Ready to build something <em>great?</em></h2>
     <p>
-      Whether you're raising your first check or your second round, we want to hear from you.
-      Send us a brief intro and we'll get back within 48 hours.
+      Tell us about your project and we'll get back to you within 24 hours.
+      Whether it's a new website, a rebrand, or a video — we'd love to help.
     </p>
     <div class="cta-actions">
-      <a href="mailto:founders@xpert.ventures" class="btn-primary">founders@xpert.ventures</a>
-      <a href="#about" class="btn-ghost">Learn More About Us</a>
+      <a href="mailto:hello@xpert.ventures" class="btn-primary">hello@xpert.ventures</a>
+      <a href="#services" class="btn-ghost">Explore Our Services</a>
     </div>
   </div>
 </section>
@@ -1057,7 +1035,16 @@ footer {
     <div class="footer-top">
       <div class="footer-brand">
         <a href="#" class="logo">Xpert<span>.</span>Ventures</a>
-        <p>Partnering with exceptional founders at the earliest stages to build the companies that define the next decade.</p>
+        <p>A full-service digital agency in Lebanon — web development, digital menus, video editing, and brand management.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="#services">Web Development</a></li>
+          <li><a href="#services">Digital Menus</a></li>
+          <li><a href="#services">Video Editing</a></li>
+          <li><a href="#services">Brand Management</a></li>
+        </ul>
       </div>
       <div class="footer-col">
         <h4>Company</h4>
@@ -1065,34 +1052,25 @@ footer {
           <li><a href="#about">About Us</a></li>
           <li><a href="#team">Our Team</a></li>
           <li><a href="#portfolio">Portfolio</a></li>
-          <li><a href="#focus">Thesis</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>For Founders</h4>
-        <ul>
-          <li><a href="#contact">Apply for Funding</a></li>
-          <li><a href="#contact">Submit a Deck</a></li>
-          <li><a href="#">FAQs</a></li>
-          <li><a href="#">Resources</a></li>
+          <li><a href="#contact">Contact</a></li>
         </ul>
       </div>
       <div class="footer-col">
         <h4>Connect</h4>
         <ul>
+          <li><a href="#">Instagram</a></li>
           <li><a href="#">LinkedIn</a></li>
-          <li><a href="#">Twitter / X</a></li>
-          <li><a href="#">Medium</a></li>
+          <li><a href="#">WhatsApp</a></li>
           <li><a href="mailto:hello@xpert.ventures">hello@xpert.ventures</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 Xpert Ventures. All rights reserved.</p>
+      <p>© 2025 Xpert Ventures. All rights reserved. · Lebanon</p>
       <div class="footer-socials">
+        <a href="#" class="social-btn" title="Instagram">IG</a>
         <a href="#" class="social-btn" title="LinkedIn">in</a>
-        <a href="#" class="social-btn" title="Twitter">𝕏</a>
-        <a href="#" class="social-btn" title="Email">✉</a>
+        <a href="#" class="social-btn" title="WhatsApp">WA</a>
       </div>
     </div>
   </div>
