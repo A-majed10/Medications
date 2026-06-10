@@ -417,6 +417,42 @@ section { padding: 100px 6vw; }
   transform: translateY(-3px);
 }
 
+.portfolio-card.featured {
+  border-color: rgba(240,180,41,0.35);
+  background: linear-gradient(135deg, rgba(240,180,41,0.06) 0%, var(--surface) 60%);
+  grid-column: span 3;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 2rem;
+  text-decoration: none;
+  color: inherit;
+}
+.portfolio-card.featured:hover {
+  border-color: rgba(240,180,41,0.65);
+  background: linear-gradient(135deg, rgba(240,180,41,0.1) 0%, var(--surface2) 60%);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(240,180,41,0.12);
+}
+.portfolio-card.featured .portfolio-logo {
+  width: 60px; height: 60px;
+  font-size: 1.8rem;
+  margin-bottom: 0;
+  background: rgba(240,180,41,0.1);
+  border-color: rgba(240,180,41,0.3);
+}
+.portfolio-card.featured .featured-body { flex: 1; }
+.portfolio-card.featured .featured-arrow {
+  font-size: 1.5rem;
+  color: var(--gold);
+  opacity: 0.7;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.portfolio-card.featured:hover .featured-arrow {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
 .portfolio-logo {
   width: 44px; height: 44px;
   background: var(--surface2);
@@ -705,6 +741,7 @@ footer {
   .about-inner { grid-template-columns: 1fr; gap: 3rem; }
   .focus-grid { grid-template-columns: 1fr 1fr; }
   .portfolio-grid { grid-template-columns: 1fr 1fr; }
+  .portfolio-card.featured { grid-column: span 2; grid-template-columns: auto 1fr auto; }
   .team-grid { grid-template-columns: 1fr 1fr; }
   .process-steps { grid-template-columns: 1fr 1fr; }
   .process-steps::before { display: none; }
@@ -716,6 +753,8 @@ footer {
   section { padding: 70px 5vw; }
   .focus-grid { grid-template-columns: 1fr; }
   .portfolio-grid { grid-template-columns: 1fr; }
+  .portfolio-card.featured { grid-column: span 1; grid-template-columns: auto 1fr; }
+  .portfolio-card.featured .featured-arrow { display: none; }
   .team-grid { grid-template-columns: 1fr 1fr; }
   .process-steps { grid-template-columns: 1fr; }
   .footer-top { grid-template-columns: 1fr; }
@@ -869,6 +908,16 @@ footer {
     </div>
 
     <div class="portfolio-grid">
+      <a href="goubela_with_video.html" class="portfolio-card featured">
+        <div class="portfolio-logo">🚦</div>
+        <div class="featured-body">
+          <h3>Goubela Co. S.A.R.L</h3>
+          <span class="tag">Road Safety &amp; Traffic Engineering</span>
+          <p>A leading road safety and traffic engineering systems company, delivering world-class infrastructure solutions across North Africa and beyond. Visit their full website to explore their products and projects.</p>
+        </div>
+        <div class="featured-arrow">→</div>
+      </a>
+
       <div class="portfolio-card">
         <div class="portfolio-logo">⚡</div>
         <h3>NeuralFlow</h3>
