@@ -2417,7 +2417,9 @@ function filterProjects(btn, filter) {
   renderProjects(filter);
 }
 
-function showPage(id) {
+const VALID_PAGES = ['home','services','projects','about','certifications','contact'];
+
+function showPage(id, pushState = true) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
   document.querySelectorAll('.nav-links a').forEach(a => {
@@ -2425,6 +2427,7 @@ function showPage(id) {
   });
   window.scrollTo(0, 0);
   if (id === 'projects') renderProjects('all');
+  if (pushState) history.pushState({page: id}, '', id === 'home' ? '/' : '/' + id);
 }
 
 let isAr = false;
@@ -2520,6 +2523,17 @@ function stopShowcase() {
     ytPlayer.playVideo();
   }
 }
+
+window.addEventListener('popstate', function(e) {
+  const page = (e.state && e.state.page) ? e.state.page : 'home';
+  showPage(page, false);
+});
+
+(function() {
+  const path = window.location.pathname.replace(/^\//, '') || 'home';
+  const page = VALID_PAGES.includes(path) ? path : 'home';
+  showPage(page, false);
+})();
 </script>
 
 <!-- Lightbox -->
