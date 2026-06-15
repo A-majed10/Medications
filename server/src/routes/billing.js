@@ -1,11 +1,16 @@
 import { Router } from "express";
-import Stripe from "stripe";
+import crypto from "crypto";
 import { q } from "../db.js";
 import { requireAuth } from "../auth-util.js";
 import { membershipFor } from "../billing-util.js";
 
-const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
+// ---- 2Checkout / Verifone (merchant of record) ----
+// You never see or store card numbers: the shopper enters card details on
+// 2Checkout's own hosted page, 2Checkout charges them, pays you to your bank,
+// and tells us (via the IPN webhook) to mark the account active.
 const appUrl = () => (process.env.APP_URL || "http://localhost:5173").replace(/\/$/, "");
+const BUY_LINK = process.env.TWOCHECKOUT_BUY_LINK || "";
+const IPN_SECRET = process.env.TWOCHECKOUT_IPN_SECRET || "";
 
 const router = Router();
 
@@ -16,67 +21,72 @@ router.get("/status", requireAuth, async (req, res) => {
   res.json({ membership: await membershipFor(rows[0]) });
 });
 
-// Start a Stripe Checkout subscription and return its hosted URL. The browser
-// redirects there; Stripe Checkout shows every payment method enabled in your
-// Stripe dashboard (cards, Apple Pay, Google Pay, local methods — no crypto).
+// Build the 2Checkout hosted-checkout URL for this user and return it; the
+// browser redirects there to pay. We tag it with the user's email/id so the
+// webhook can match the payment back to the account.
 router.post("/checkout", requireAuth, async (req, res) => {
-  if (!stripe || !process.env.STRIPE_PRICE_ID) {
-    return res.status(400).json({ error: "Payments are not configured on the server" });
-  }
-  const { rows } = await q("SELECT * FROM users WHERE id = $1", [req.user.id]);
-  const u = rows[0];
-  let customer = u.stripe_customer_id;
-  if (!customer) {
-    const c = await stripe.customers.create({ email: u.email, metadata: { userId: String(u.id) } });
-    customer = c.id;
-    await q("UPDATE users SET stripe_customer_id = $1 WHERE id = $2", [customer, u.id]);
-  }
-  try {
-    const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      customer,
-      line_items: [{ price: process.env.STRIPE_PRICE_ID, quantity: 1 }],
-      allow_promotion_codes: true,
-      success_url: `${appUrl()}?sub=success`,
-      cancel_url: `${appUrl()}?sub=cancel`,
-    });
-    res.json({ url: session.url });
-  } catch (e) {
-    res.status(400).json({ error: e.message || "Could not start checkout" });
-  }
+  if (!BUY_LINK) return res.status(400).json({ error: "Payments are not configured on the server" });
+  const { rows } = await q("SELECT email FROM users WHERE id = $1", [req.user.id]);
+  const email = rows[0] ? rows[0].email : "";
+  const sep = BUY_LINK.includes("?") ? "&" : "?";
+  const url =
+    `${BUY_LINK}${sep}` +
+    `customer-ext-ref=${encodeURIComponent(req.user.id)}` +
+    `&order-ext-ref=${encodeURIComponent("u" + req.user.id)}` +
+    `&customer-email=${encodeURIComponent(email)}` +
+    `&return-url=${encodeURIComponent(appUrl() + "?sub=success")}` +
+    `&return-type=redirect`;
+  res.json({ url });
 });
 
-// Stripe-hosted billing portal so members can update card / cancel.
-router.post("/portal", requireAuth, async (req, res) => {
-  if (!stripe) return res.status(400).json({ error: "Payments are not configured" });
-  const { rows } = await q("SELECT stripe_customer_id FROM users WHERE id = $1", [req.user.id]);
-  const customer = rows[0] && rows[0].stripe_customer_id;
-  if (!customer) return res.status(400).json({ error: "No subscription on file" });
-  const session = await stripe.billingPortal.sessions.create({ customer, return_url: appUrl() });
-  res.json({ url: session.url });
+// Shoppers manage / cancel their subscription in 2Checkout's myAccount portal.
+router.post("/portal", requireAuth, (req, res) => {
+  res.json({ url: process.env.TWOCHECKOUT_PORTAL_URL || "https://secure.2checkout.com/myaccount/" });
 });
 
-// Stripe webhook — keeps subscription_status in sync. Mounted with a raw body
-// parser in index.js so the signature can be verified.
+// 2Checkout's IPN signs the payload by concatenating, for each field (except
+// the signature fields), its byte-length followed by its value, then HMAC-SHA256
+// with your IPN secret. (Confirm against your account in sandbox — share a
+// failing payload and we'll match the exact field handling.)
+function verifyIpn(body) {
+  if (!IPN_SECRET) return true; // no secret set = verification disabled (dev only)
+  const provided = body.SIGNATURE_SHA2_256 || body.HASH;
+  if (!provided) return false;
+  const skip = new Set(["SIGNATURE_SHA2_256", "SIGNATURE_SHA3_256", "HASH"]);
+  let str = "";
+  for (const [k, v] of Object.entries(body)) {
+    if (skip.has(k)) continue;
+    const val = Array.isArray(v) ? v.join("") : v == null ? "" : String(v);
+    str += Buffer.byteLength(val, "utf8") + val;
+  }
+  const h = crypto.createHmac("sha256", IPN_SECRET).update(str, "utf8").digest("hex");
+  return h.toLowerCase() === String(provided).toLowerCase();
+}
+
+const ACTIVE = ["ORDER_CREATED", "PAYMENT_AUTHORIZED", "RECURRING_INSTALLMENT_SUCCESS", "FRAUD_APPROVED"];
+const ENDED = ["RECURRING_STOPPED", "RECURRING_COMPLETE", "SUBSCRIPTION_CANCELED", "REFUND_ISSUED", "CHARGEBACK_OPENED"];
+const FAILED = ["RECURRING_INSTALLMENT_FAILED", "PAYMENT_REFUSED"];
+
+// IPN webhook — mounted with a urlencoded body parser in index.js.
 export async function webhookHandler(req, res) {
-  if (!stripe || !process.env.STRIPE_WEBHOOK_SECRET) return res.status(400).end();
-  let event;
+  const body = req.body || {};
+  if (!verifyIpn(body)) return res.status(400).send("invalid signature");
+
+  const email = (body.CUSTOMEREMAIL || body.customer_email || body.email || "").toLowerCase();
+  const type = body.MESSAGE_TYPE || body.message_type || "";
+
+  let status = null;
+  if (ACTIVE.includes(type)) status = "active";
+  else if (FAILED.includes(type)) status = "past_due";
+  else if (ENDED.includes(type)) status = "canceled";
+
   try {
-    event = stripe.webhooks.constructEvent(req.body, req.headers["stripe-signature"], process.env.STRIPE_WEBHOOK_SECRET);
-  } catch (e) {
-    return res.status(400).send(`Webhook Error: ${e.message}`);
-  }
-  const obj = event.data.object;
-  try {
-    if (event.type === "checkout.session.completed") {
-      await q("UPDATE users SET subscription_status = 'active' WHERE stripe_customer_id = $1", [obj.customer]);
-    } else if (event.type.startsWith("customer.subscription.")) {
-      await q("UPDATE users SET subscription_status = $1 WHERE stripe_customer_id = $2", [obj.status, obj.customer]);
-    } else if (event.type === "invoice.payment_failed") {
-      await q("UPDATE users SET subscription_status = 'past_due' WHERE stripe_customer_id = $1", [obj.customer]);
+    if (email && status) {
+      await q("UPDATE users SET subscription_status = $1 WHERE email = $2", [status, email]);
     }
-  } catch (e) { /* ignore — Stripe will retry */ }
-  res.json({ received: true });
+  } catch (e) { /* 2Checkout retries on non-2xx; ignore transient errors */ }
+
+  res.status(200).send("OK");
 }
 
 export default router;

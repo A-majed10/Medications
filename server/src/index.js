@@ -28,9 +28,8 @@ const origins = (process.env.CORS_ORIGINS || "http://localhost:5173")
   .filter(Boolean);
 app.use(cors({ origin: origins.length ? origins : true }));
 
-// Stripe's webhook signature is verified against the raw body, so this route
-// must be registered BEFORE the JSON body parser.
-app.post("/billing/webhook", express.raw({ type: "application/json" }), webhookHandler);
+// 2Checkout's IPN webhook posts form-encoded data — parse it for that route.
+app.post("/billing/webhook", express.urlencoded({ extended: true }), webhookHandler);
 
 // Images are sent as data URLs inside station payloads, so allow a large body.
 app.use(express.json({ limit: "12mb" }));

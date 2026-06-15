@@ -3,9 +3,9 @@ import { q } from "./db.js";
 // Number of stations a user can complete free before they must subscribe.
 export const FREE_LIMIT = Number(process.env.FREE_STATION_LIMIT || 3);
 
-// Payments are only enforced when Stripe is configured. Without a key the app
-// runs with everyone allowed, so local/dev use needs no Stripe at all.
-export const billingEnabled = () => !!process.env.STRIPE_SECRET_KEY;
+// Payments are only enforced when 2Checkout is configured. Without it the app
+// runs with everyone allowed, so local/dev use needs no payment setup at all.
+export const billingEnabled = () => !!process.env.TWOCHECKOUT_BUY_LINK;
 
 const isActive = (status) => status === "active" || status === "trialing";
 

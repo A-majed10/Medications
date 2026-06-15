@@ -633,7 +633,7 @@ Return ONLY valid minified JSON, no markdown, no code fences, no preamble, exact
           <button onClick={startCheckout} disabled={checkoutBusy} className="pine mt-6 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 font-semibold">
             {checkoutBusy ? <Loader2 className="h-5 w-5 animate-spin" /> : <><CreditCard className="h-5 w-5" />{t("Subscribe", "اشترك")}</>}
           </button>
-          <p className="mt-3 text-xs text-stone-400">{t("Secure checkout by Stripe. Cards, Apple Pay, Google Pay and more. Cancel anytime.", "دفع آمن عبر Stripe. بطاقات وApple Pay وGoogle Pay وغيرها. يمكنك الإلغاء في أي وقت.")}</p>
+          <p className="mt-3 text-xs text-stone-400">{t("Secure checkout by 2Checkout (Verifone). Your card details are entered on their PCI-certified page, never on this site. Cancel anytime.", "دفع آمن عبر 2Checkout (Verifone). تُدخَل بيانات بطاقتك على صفحتهم المعتمدة، وليس على هذا الموقع. يمكنك الإلغاء في أي وقت.")}</p>
           <button onClick={() => setView("home")} className="mt-4 text-sm font-medium text-stone-500 hover:text-stone-900">{t("Back to stations", "العودة إلى المحطّات")}</button>
         </div>
       </div>

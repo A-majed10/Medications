@@ -148,40 +148,34 @@ hidden automatically.
 ## Paid memberships (optional)
 
 To make the app pay for its own API usage, you can put it behind a **monthly
-subscription with a free trial**, handled by **Stripe**. If you don't set the
-Stripe variables, there is **no paywall** — everyone has unlimited free access.
+subscription with a free trial**, handled by **2Checkout (Verifone)** — a
+merchant of record that accepts international cards and pays out to a normal bank
+account/card (works for sellers in Lebanon). If you don't set the 2Checkout
+variables, there is **no paywall** — everyone has unlimited free access.
 
-**How it works:** every user signs up free and gets `FREE_STATION_LIMIT` stations
-to try (default 3). After that, running a station requires an active
-subscription. The server checks membership before every AI call, so it's the
-real enforcement — not just a hidden button. Stripe Checkout shows every payment
-method you enable in your Stripe dashboard (cards, Apple Pay, Google Pay, Link,
-local bank methods — no crypto). Members can update their card or cancel via the
-Stripe billing portal ("Manage membership" in the footer).
+**You never touch card data.** Card details are entered on 2Checkout's own
+PCI-certified hosted page, not your site. 2Checkout charges the customer, pays
+you, and notifies your server (the IPN webhook) to mark the account active. So
+there is no card information on your server to steal.
 
-**Setup (dashboard.stripe.com):**
-1. **Product → add a recurring Price** (e.g. $9/month). Copy its `price_…` id →
-   `STRIPE_PRICE_ID`.
-2. **Developers → API keys** → copy the **Secret key** → `STRIPE_SECRET_KEY`.
-3. **Developers → Webhooks → Add endpoint** → URL `https://<your-api>/billing/webhook`,
-   subscribe to `checkout.session.completed`, `customer.subscription.*`,
-   `invoice.payment_failed`. Copy the signing secret → `STRIPE_WEBHOOK_SECRET`.
-4. Set `APP_URL` to your web app's public URL (where Stripe returns users after
-   payment), and `FREE_STATION_LIMIT` to taste.
+**How it works:** every user signs up free and gets `FREE_STATION_LIMIT`
+stations (default 3). After that, running a station requires an active
+subscription. The server checks membership before every AI call — real
+enforcement, not a hidden button. **Faculty are exempt.** Members manage/cancel
+in 2Checkout's myAccount portal ("Manage membership" in the footer).
 
-**Pricing note:** set the membership above what a user costs you in API calls
-(a few cents per station) plus the processor's ~3% fee, or it won't actually
-cover costs. **Faculty are exempt** — staff never hit the paywall. Test
-end-to-end with **test mode** keys before going live.
+**Setup (2Checkout Control Panel):**
+1. Create a **recurring (subscription) product** (e.g. $9/month).
+2. **Generate a Buy Link** for it → paste into `TWOCHECKOUT_BUY_LINK`.
+3. Set up an **IPN** pointing to `https://<your-api>/billing/webhook` and copy
+   its secret into `TWOCHECKOUT_IPN_SECRET` (used to verify notifications).
+4. Set `APP_URL` to your web app's public URL and `FREE_STATION_LIMIT` to taste.
 
-> **Stripe + your country:** Stripe does not currently onboard businesses in
-> some countries (Lebanon among them). If Stripe won't accept your account, the
-> code is processor-agnostic enough to swap — common routes are a foreign
-> company/bank (e.g. a US/UAE entity) with Stripe, an international
-> merchant-of-record like **2Checkout/Verifone**, or a **local Lebanese
-> gateway** (Whish, Areeba/NetCommerce, a bank gateway) for local cards. The
-> right choice depends on whether your buyers and payouts are local or
-> international.
+**Pricing note:** set the membership above what a user costs you in API calls (a
+few cents per station) plus 2Checkout's fee, or it won't cover costs. **Test in
+2Checkout's sandbox before going live** — the IPN signature handling can vary by
+account; if a test notification is rejected, share the payload and it's a quick
+fix.
 
 ## Deploying safely — security & traffic
 
