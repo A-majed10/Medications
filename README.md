@@ -145,6 +145,35 @@ hidden automatically.
 
 ---
 
+## Paid memberships (optional)
+
+To make the app pay for its own API usage, you can put it behind a **monthly
+subscription with a free trial**, handled by **Stripe**. If you don't set the
+Stripe variables, there is **no paywall** — everyone has unlimited free access.
+
+**How it works:** every user signs up free and gets `FREE_STATION_LIMIT` stations
+to try (default 3). After that, running a station requires an active
+subscription. The server checks membership before every AI call, so it's the
+real enforcement — not just a hidden button. Stripe Checkout shows every payment
+method you enable in your Stripe dashboard (cards, Apple Pay, Google Pay, Link,
+local bank methods — no crypto). Members can update their card or cancel via the
+Stripe billing portal ("Manage membership" in the footer).
+
+**Setup (dashboard.stripe.com):**
+1. **Product → add a recurring Price** (e.g. $9/month). Copy its `price_…` id →
+   `STRIPE_PRICE_ID`.
+2. **Developers → API keys** → copy the **Secret key** → `STRIPE_SECRET_KEY`.
+3. **Developers → Webhooks → Add endpoint** → URL `https://<your-api>/billing/webhook`,
+   subscribe to `checkout.session.completed`, `customer.subscription.*`,
+   `invoice.payment_failed`. Copy the signing secret → `STRIPE_WEBHOOK_SECRET`.
+4. Set `APP_URL` to your web app's public URL (where Stripe returns users after
+   payment), and `FREE_STATION_LIMIT` to taste.
+
+**Pricing note:** set the membership above what a user costs you in API calls
+(a few cents per station) plus Stripe's ~3% fee, or it won't actually cover
+costs. Faculty currently pay like everyone else — say the word and I can exempt
+them. Test end-to-end with Stripe **test mode** keys before going live.
+
 ## Data model
 
 - **users** — id, email, password hash (for email sign-in), google_id (for

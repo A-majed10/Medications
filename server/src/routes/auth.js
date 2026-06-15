@@ -3,12 +3,14 @@ import bcrypt from "bcryptjs";
 import { OAuth2Client } from "google-auth-library";
 import { q } from "../db.js";
 import { signToken, requireAuth, publicUser } from "../auth-util.js";
+import { membershipFor } from "../billing-util.js";
 
 const router = Router();
 const FACULTY_CODE = process.env.FACULTY_CODE || "osce-faculty";
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const emailOk = (e) => typeof e === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
+const withMembership = async (u) => ({ ...publicUser(u), membership: await membershipFor(u) });
 
 function roleFor(code) {
   return code && code.trim() === FACULTY_CODE ? "faculty" : "student";
@@ -33,7 +35,7 @@ router.post("/signup", async (req, res) => {
       [email, hash, name || email.split("@")[0], role]
     );
     const user = rows[0];
-    res.json({ token: signToken(user), user: publicUser(user) });
+    res.json({ token: signToken(user), user: await withMembership(user) });
   } catch (e) {
     res.status(500).json({ error: "Could not create the account" });
   }
@@ -49,7 +51,7 @@ router.post("/login", async (req, res) => {
     if (!user || !user.password_hash) return res.status(401).json({ error: "Wrong email or password" });
     const ok = await bcrypt.compare(password, user.password_hash);
     if (!ok) return res.status(401).json({ error: "Wrong email or password" });
-    res.json({ token: signToken(user), user: publicUser(user) });
+    res.json({ token: signToken(user), user: await withMembership(user) });
   } catch (e) {
     res.status(500).json({ error: "Could not sign in" });
   }
@@ -85,7 +87,7 @@ router.post("/google", async (req, res) => {
       const upd = await q("UPDATE users SET google_id = $1 WHERE id = $2 RETURNING *", [googleId, user.id]);
       user = upd.rows[0];
     }
-    res.json({ token: signToken(user), user: publicUser(user) });
+    res.json({ token: signToken(user), user: await withMembership(user) });
   } catch (e) {
     res.status(401).json({ error: "Could not verify Google sign-in" });
   }
@@ -95,7 +97,7 @@ router.post("/google", async (req, res) => {
 router.get("/me", requireAuth, async (req, res) => {
   const { rows } = await q("SELECT * FROM users WHERE id = $1", [req.user.id]);
   if (!rows[0]) return res.status(404).json({ error: "User not found" });
-  res.json({ user: publicUser(rows[0]) });
+  res.json({ user: await withMembership(rows[0]) });
 });
 
 // ---- upgrade an existing account to faculty with the code ----
@@ -105,7 +107,7 @@ router.post("/faculty-upgrade", requireAuth, async (req, res) => {
   }
   const { rows } = await q("UPDATE users SET role = 'faculty' WHERE id = $1 RETURNING *", [req.user.id]);
   const user = rows[0];
-  res.json({ token: signToken(user), user: publicUser(user) });
+  res.json({ token: signToken(user), user: await withMembership(user) });
 });
 
 export default router;

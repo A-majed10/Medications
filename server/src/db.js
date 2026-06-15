@@ -20,9 +20,14 @@ export async function initDb() {
       google_id     TEXT UNIQUE,
       name          TEXT,
       role          TEXT NOT NULL DEFAULT 'student',
+      stripe_customer_id   TEXT,
+      subscription_status  TEXT NOT NULL DEFAULT 'none',
       created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
     );
   `);
+  // For databases created before paid memberships were added.
+  await q(`ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_customer_id TEXT;`);
+  await q(`ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_status TEXT NOT NULL DEFAULT 'none';`);
 
   await q(`
     CREATE TABLE IF NOT EXISTS stations (

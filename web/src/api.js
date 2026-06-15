@@ -41,6 +41,11 @@ export const api = {
 
   // ai proxy
   claude: ({ system, messages }) => req("/api/claude", { method: "POST", body: { system, messages } }),
+
+  // billing / membership
+  billingStatus: () => req("/billing/status"),
+  checkout: () => req("/billing/checkout", { method: "POST" }),
+  portal: () => req("/billing/portal", { method: "POST" }),
 };
 
 export const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";

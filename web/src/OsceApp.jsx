@@ -4,6 +4,7 @@ import {
   ChevronRight, Loader2, AlertTriangle, Activity, Heart, MessageSquare,
   Mic, Square, Volume2, VolumeX, Plus, Trash2, Pencil, ClipboardList, GraduationCap,
   Lock, Wind, Droplets, Image as ImageIcon, Eye, BarChart3, Users, LogOut, TrendingUp,
+  CreditCard, Sparkles,
 } from "lucide-react";
 import { api, setToken } from "./api.js";
 
@@ -201,6 +202,8 @@ export default function App({ user, onUser, onSignOut }) {
   const [investOpen, setInvestOpen] = useState(false);
 
   const isFaculty = user?.role === "faculty";
+  const membership = (user && user.membership) || { eligible: true, billingEnabled: false };
+  const [checkoutBusy, setCheckoutBusy] = useState(false);
   const [gateInput, setGateInput] = useState("");
   const [gateError, setGateError] = useState(false);
   const [gateBusy, setGateBusy] = useState(false);
@@ -262,6 +265,22 @@ export default function App({ user, onUser, onSignOut }) {
   }
   function openProgress() { setView("progress"); loadMyAttempts(); }
   function openStudents() { setView("students"); loadFacultyAttempts(); }
+
+  // ---- membership ----
+  async function refreshMembership() {
+    try { const { membership: m } = await api.billingStatus(); onUser && onUser({ ...user, membership: m }); }
+    catch (e) { /* ignore */ }
+  }
+  async function startCheckout() {
+    setCheckoutBusy(true);
+    try { const { url } = await api.checkout(); if (url) window.location.href = url; }
+    catch (e) { /* ignore */ }
+    finally { setCheckoutBusy(false); }
+  }
+  async function openPortal() {
+    try { const { url } = await api.portal(); if (url) window.location.href = url; }
+    catch (e) { /* ignore */ }
+  }
 
   function speak(text, force) {
     if (!hasTTS || (!voiceOut && !force) || !text) return;
@@ -331,6 +350,7 @@ export default function App({ user, onUser, onSignOut }) {
   }
 
   function beginStation() {
+    if (!membership.eligible) { setView("paywall"); return; }
     if (hasTTS) { try { window.speechSynthesis.cancel(); window.speechSynthesis.resume(); } catch (e) {} }
     setMessages([]); setInput(""); setFeedback(null); setScoreError(false); setInvestOpen(false); setSavedAttempt(false);
     setSecondsLeft(activeCase.durationSec); setView("station");
@@ -395,6 +415,8 @@ Return ONLY valid minified JSON, no markdown, no code fences, no preamble, exact
         durationSec: activeCase.durationSec - Math.max(secondsLeft, 0),
       });
       setSavedAttempt(true);
+      // A completed station counts against the free trial — refresh the count.
+      if (membership.billingEnabled) refreshMembership();
     } catch (e) { /* keep the result on screen even if saving fails */ }
   }
 
@@ -475,7 +497,7 @@ Return ONLY valid minified JSON, no markdown, no code fences, no preamble, exact
                 <BarChart3 className="h-4 w-4" /><span className="hidden sm:inline">{t("Progress", "التقدّم")}</span>
               </button>
             )}
-            {(view === "home" || view === "faculty" || view === "editor" || view === "gate" || view === "students" || view === "progress") && (
+            {(view === "home" || view === "faculty" || view === "editor" || view === "gate" || view === "students" || view === "progress" || view === "paywall") && (
               <button onClick={() => (view === "home" ? goFaculty() : setView("home"))} className="flex items-center gap-1.5 rounded-full border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium text-stone-600 hover:border-stone-400 hover:text-stone-900">
                 {view === "home" ? <GraduationCap className="h-4 w-4" /> : <Stethoscope className="h-4 w-4" />}
                 {view === "home" ? t("Faculty", "هيئة تدريسية") : t("Stations", "المحطّات")}
@@ -497,12 +519,16 @@ Return ONLY valid minified JSON, no markdown, no code fences, no preamble, exact
           {view === "editor" && <Editor />}
           {view === "progress" && <Progress />}
           {view === "students" && <Students />}
+          {view === "paywall" && <Paywall />}
         </main>
 
         <footer className="flex flex-wrap items-center justify-between gap-2 px-5 py-4 text-center text-xs text-stone-400">
           <span className="flex items-center gap-2">
             <span className="text-stone-500">{user?.name || user?.email}</span>
             {isFaculty && <span className="rounded-full bg-emerald-100 px-2 py-0.5 font-medium text-emerald-700">{t("Faculty", "هيئة")}</span>}
+            {membership.billingEnabled && membership.status === "active" && (
+              <button onClick={openPortal} className="flex items-center gap-1 text-[#15564b] hover:underline"><CreditCard className="h-3.5 w-3.5" />{t("Manage membership", "إدارة العضوية")}</button>
+            )}
             <button onClick={onSignOut} className="flex items-center gap-1 text-stone-400 hover:text-stone-700"><LogOut className="h-3.5 w-3.5" />{t("Sign out", "خروج")}</button>
           </span>
           <span>{t("AI standardized patient. Practice tool — not for real clinical use.", "مريض افتراضي بالذكاء الاصطناعي. أداة تدريب — ليست للاستخدام السريري.")}</span>
@@ -539,6 +565,17 @@ Return ONLY valid minified JSON, no markdown, no code fences, no preamble, exact
              "تحدّث مع مريض افتراضي واقعي ضمن ظروف الامتحان، ثم اطّلع على بطاقة علامات رسمية — مُصحّحة بندًا ببند، مع ما أصبته وما فاتك وكيفية التحسّن.")}
         </p>
 
+        {membership.billingEnabled && membership.status !== "active" && (
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+            <p className="text-sm text-amber-800">
+              {membership.freeLeft > 0
+                ? t(`Free trial — ${membership.freeLeft} of ${membership.freeLimit} stations left.`, `تجربة مجانية — تبقّى ${membership.freeLeft} من ${membership.freeLimit} محطّات.`)
+                : t("Your free trial is over. Subscribe to keep practising.", "انتهت تجربتك المجانية. اشترك لمواصلة التدرّب.")}
+            </p>
+            <button onClick={() => setView("paywall")} className="pine flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold"><Sparkles className="h-4 w-4" />{t("Go premium", "اشترك")}</button>
+          </div>
+        )}
+
         <div className="mt-6 flex flex-wrap gap-2">
           {chips.map((k) => {
             const on = catFilter === k;
@@ -569,6 +606,36 @@ Return ONLY valid minified JSON, no markdown, no code fences, no preamble, exact
           {isFaculty ? <Plus className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
           {isFaculty ? t("Author a new station", "أنشئ محطّة جديدة") : t("Faculty sign-in to add stations", "دخول الهيئة لإضافة محطّات")}
         </button>
+      </div>
+    );
+  }
+
+  function Paywall() {
+    return (
+      <div className="px-5 py-12">
+        <div className="mx-auto max-w-md rounded-2xl border border-stone-200 bg-white p-7 text-center">
+          <span className="soft pine-text mx-auto flex h-12 w-12 items-center justify-center rounded-xl"><Sparkles className="h-6 w-6" /></span>
+          <h1 className="disp mt-4 text-2xl font-semibold tracking-tight">{t("Go premium", "اشترك في النسخة المميّزة")}</h1>
+          <p className="mt-2 text-sm text-stone-500">
+            {membership.freeLeft > 0
+              ? t(`You have ${membership.freeLeft} free stations left. Subscribe any time for unlimited practice.`, `لديك ${membership.freeLeft} محطّات مجانية. اشترك في أي وقت للتدرّب بلا حدود.`)
+              : t("Your free trial is over. Subscribe for unlimited stations, the AI patient, and full mark sheets.", "انتهت تجربتك المجانية. اشترك للحصول على محطّات غير محدودة، والمريض الذكي، وبطاقات العلامات الكاملة.")}
+          </p>
+
+          <ul className="mt-5 space-y-2 text-start text-sm text-stone-700">
+            {[t("Unlimited OSCE stations", "محطّات OSCE غير محدودة"),
+              t("Realistic AI standardized patient", "مريض افتراضي واقعي بالذكاء الاصطناعي"),
+              t("Full examiner mark sheets & progress tracking", "بطاقات علامات كاملة وتتبّع التقدّم")].map((f, i) => (
+              <li key={i} className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-600" />{f}</li>
+            ))}
+          </ul>
+
+          <button onClick={startCheckout} disabled={checkoutBusy} className="pine mt-6 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 font-semibold">
+            {checkoutBusy ? <Loader2 className="h-5 w-5 animate-spin" /> : <><CreditCard className="h-5 w-5" />{t("Subscribe", "اشترك")}</>}
+          </button>
+          <p className="mt-3 text-xs text-stone-400">{t("Secure checkout by Stripe. Cards, Apple Pay, Google Pay and more. Cancel anytime.", "دفع آمن عبر Stripe. بطاقات وApple Pay وGoogle Pay وغيرها. يمكنك الإلغاء في أي وقت.")}</p>
+          <button onClick={() => setView("home")} className="mt-4 text-sm font-medium text-stone-500 hover:text-stone-900">{t("Back to stations", "العودة إلى المحطّات")}</button>
+        </div>
       </div>
     );
   }
