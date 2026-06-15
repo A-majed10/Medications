@@ -13,7 +13,6 @@ const toClient = (r) => ({
   brief: r.brief,
   images: r.images || [],
   rubric: r.rubric || [],
-  script: r.script || {},
   ownerId: r.owner_id,
 });
 
@@ -35,21 +34,20 @@ function readBody(b) {
     brief: (b.brief || "").trim(),
     images: Array.isArray(b.images) ? b.images : [],
     rubric: Array.isArray(b.rubric) ? b.rubric : [],
-    script: b.script && typeof b.script === "object" ? b.script : {},
   };
 }
 
 // Faculty create a station.
 router.post("/", requireAuth, requireFaculty, async (req, res) => {
   const s = readBody(req.body);
-  if (!s.title || s.rubric.length === 0) {
-    return res.status(400).json({ error: "Title and at least one rubric domain are required" });
+  if (!s.title || !s.brief || s.rubric.length === 0) {
+    return res.status(400).json({ error: "Title, patient brief and at least one rubric domain are required" });
   }
   const id = "c" + Date.now() + Math.floor(Math.random() * 1000);
   const { rows } = await q(
-    `INSERT INTO stations (id, owner_id, title, category, duration_min, task, brief, images, rubric, script, is_public)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,true) RETURNING *`,
-    [id, req.user.id, s.title, s.category, s.duration_min, s.task, s.brief, JSON.stringify(s.images), JSON.stringify(s.rubric), JSON.stringify(s.script)]
+    `INSERT INTO stations (id, owner_id, title, category, duration_min, task, brief, images, rubric, is_public)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,true) RETURNING *`,
+    [id, req.user.id, s.title, s.category, s.duration_min, s.task, s.brief, JSON.stringify(s.images), JSON.stringify(s.rubric)]
   );
   res.json({ station: toClient(rows[0]) });
 });
@@ -58,9 +56,9 @@ router.post("/", requireAuth, requireFaculty, async (req, res) => {
 router.put("/:id", requireAuth, requireFaculty, async (req, res) => {
   const s = readBody(req.body);
   const { rows } = await q(
-    `UPDATE stations SET title=$1, category=$2, duration_min=$3, task=$4, brief=$5, images=$6, rubric=$7, script=$8
-     WHERE id=$9 AND owner_id=$10 RETURNING *`,
-    [s.title, s.category, s.duration_min, s.task, s.brief, JSON.stringify(s.images), JSON.stringify(s.rubric), JSON.stringify(s.script), req.params.id, req.user.id]
+    `UPDATE stations SET title=$1, category=$2, duration_min=$3, task=$4, brief=$5, images=$6, rubric=$7
+     WHERE id=$8 AND owner_id=$9 RETURNING *`,
+    [s.title, s.category, s.duration_min, s.task, s.brief, JSON.stringify(s.images), JSON.stringify(s.rubric), req.params.id, req.user.id]
   );
   if (!rows[0]) return res.status(404).json({ error: "Station not found or not yours" });
   res.json({ station: toClient(rows[0]) });
