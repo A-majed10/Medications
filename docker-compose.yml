@@ -1,0 +1,51 @@
+# Run the whole stack locally with one command:
+#   cp .env.example .env   # then put your ANTHROPIC_API_KEY in it
+#   docker compose up --build
+# Then open http://localhost:5173
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hakim
+    ports:
+      - "5432:5432"
+    volumes:
+      - hakim_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./server
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/hakim
+      PGSSL: "false"
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      FACULTY_CODE: ${FACULTY_CODE:-osce-faculty}
+      CORS_ORIGINS: http://localhost:5173
+      PORT: "8080"
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./web
+      args:
+        VITE_API_URL: http://localhost:8080
+        VITE_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+
+volumes:
+  hakim_db:

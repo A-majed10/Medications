@@ -38,7 +38,20 @@ input/output uses the browser's Web Speech API and is not AI.
 
 ---
 
-## Run it locally
+## Run it locally — one command (Docker)
+
+If you have Docker, this brings up Postgres, the API, and the web app together:
+
+```bash
+cp .env.example .env        # put your ANTHROPIC_API_KEY in it
+docker compose up --build
+```
+
+Then open http://localhost:5173. The database, tables, and all three services
+are created for you. Only `ANTHROPIC_API_KEY` is required; the rest default to
+local-dev values. (Add `GOOGLE_CLIENT_ID` to enable Google sign-in.)
+
+## Run it locally — manual
 
 You need **Node 18+** and a **Postgres** database (local install, Docker, or a
 free hosted one).
