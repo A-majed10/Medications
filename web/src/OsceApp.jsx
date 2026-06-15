@@ -25,6 +25,12 @@ const STYLE = `
 @keyframes lp{0%,100%{box-shadow:0 0 0 0 rgba(225,29,72,.5);}50%{box-shadow:0 0 0 9px rgba(225,29,72,0);}}
 .fadein{animation:fi .25s ease-out;}
 @keyframes fi{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+.card{transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .18s,border-color .18s;}
+.card:hover{transform:translateY(-3px);box-shadow:0 18px 40px -20px rgba(21,86,75,.35);border-color:#cdded8;}
+.card:active{transform:translateY(-1px);}
+.hero{background:radial-gradient(120% 120% at 0% 0%,#e9f1ee 0%,#f0efea 45%,#f5f5f4 100%);}
+.ring-soft{box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px -16px rgba(21,86,75,.18);}
+.grain:before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,rgba(255,255,255,.5),rgba(255,255,255,0) 60%);pointer-events:none;}
 `;
 
 // AI calls now go through our backend, which holds the Anthropic key securely
@@ -198,6 +204,7 @@ export default function App({ user, onUser, onSignOut }) {
   const [confirmDelete, setConfirmDelete] = useState(null);
 
   const [catFilter, setCatFilter] = useState("all");
+  const [catView, setCatView] = useState(null);
   const [lightbox, setLightbox] = useState(null);
   const [investOpen, setInvestOpen] = useState(false);
 
@@ -497,7 +504,7 @@ Return ONLY valid minified JSON, no markdown, no code fences, no preamble, exact
                 <BarChart3 className="h-4 w-4" /><span className="hidden sm:inline">{t("Progress", "التقدّم")}</span>
               </button>
             )}
-            {(view === "home" || view === "faculty" || view === "editor" || view === "gate" || view === "students" || view === "progress" || view === "paywall") && (
+            {(view === "home" || view === "category" || view === "faculty" || view === "editor" || view === "gate" || view === "students" || view === "progress" || view === "paywall") && (
               <button onClick={() => (view === "home" ? goFaculty() : setView("home"))} className="flex items-center gap-1.5 rounded-full border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium text-stone-600 hover:border-stone-400 hover:text-stone-900">
                 {view === "home" ? <GraduationCap className="h-4 w-4" /> : <Stethoscope className="h-4 w-4" />}
                 {view === "home" ? t("Faculty", "هيئة تدريسية") : t("Stations", "المحطّات")}
@@ -511,6 +518,7 @@ Return ONLY valid minified JSON, no markdown, no code fences, no preamble, exact
 
         <main className="flex-1">
           {view === "home" && <Home />}
+          {view === "category" && <CategoryView />}
           {view === "gate" && <Gate />}
           {view === "brief" && <Brief />}
           {view === "station" && <Station />}
@@ -548,65 +556,125 @@ Return ONLY valid minified JSON, no markdown, no code fences, no preamble, exact
   );
 
   // ================= views =================
+  function allCases() { return [...BUILTIN, ...customCases.map(normalizeCustom)]; }
+
+  function openCategory(key) { setCatView(key); setView("category"); }
+
   function Home() {
-    const customs = customCases.map(normalizeCustom);
-    const all = [...BUILTIN, ...customs];
-    const show = (c) => catFilter === "all" || c.category === catFilter;
-    const builtinShown = BUILTIN.filter(show);
-    const customsShown = customs.filter(show);
+    const all = allCases();
     const counts = all.reduce((m, c) => { m[c.category] = (m[c.category] || 0) + 1; return m; }, {});
-    const chips = ["all", ...CATEGORY_KEYS.filter((k) => counts[k])];
+    const total = all.length;
+    return (
+      <div>
+        {/* hero */}
+        <div className="hero relative overflow-hidden px-5 pb-10 pt-9">
+          <p className="mono pine-text text-xs font-medium uppercase tracking-[0.2em]">{t("Examination circuit", "حلبة الامتحان")}</p>
+          <h1 className="disp mt-2 text-4xl font-semibold leading-[1.05] tracking-tight text-stone-900 sm:text-5xl">
+            {t("Practice like it's exam day.", "تدرّب كأنه يوم الامتحان.")}
+          </h1>
+          <p className="mt-3 max-w-xl text-base leading-relaxed text-stone-600">
+            {t("Pick a specialty, step into a realistic patient encounter, and get an examiner-style mark sheet — scored point by point with exactly what to improve.",
+               "اختر تخصّصًا، وادخل في مقابلة واقعية مع مريض، واحصل على بطاقة علامات كالممتحِن — مُصحّحة بندًا ببند مع ما يجب تحسينه.")}
+          </p>
+          <div className="mono mt-4 flex flex-wrap gap-4 text-xs text-stone-500">
+            <span className="flex items-center gap-1.5"><Stethoscope className="pine-text h-4 w-4" />{total} {t("stations", "محطّة")}</span>
+            <span className="flex items-center gap-1.5"><MessageSquare className="pine-text h-4 w-4" />{t("AI patient", "مريض ذكي")}</span>
+            <span className="flex items-center gap-1.5"><ClipboardList className="pine-text h-4 w-4" />{t("Instant mark sheet", "بطاقة علامات فورية")}</span>
+          </div>
+        </div>
+
+        <div className="px-5 pb-10">
+          {membership.billingEnabled && !membership.exempt && membership.status !== "active" && (
+            <div className="-mt-4 mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 ring-soft">
+              <p className="text-sm text-amber-800">
+                {membership.freeLeft > 0
+                  ? t(`Free trial — ${membership.freeLeft} of ${membership.freeLimit} stations left.`, `تجربة مجانية — تبقّى ${membership.freeLeft} من ${membership.freeLimit} محطّات.`)
+                  : t("Your free trial is over. Subscribe to keep practising.", "انتهت تجربتك المجانية. اشترك لمواصلة التدرّب.")}
+              </p>
+              <button onClick={() => setView("paywall")} className="pine flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold"><Sparkles className="h-4 w-4" />{t("Go premium", "اشترك")}</button>
+            </div>
+          )}
+
+          <p className="mono text-xs font-medium uppercase tracking-widest text-stone-400">{t("Choose a specialty", "اختر تخصّصًا")}</p>
+          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {CATEGORY_KEYS.map((k) => {
+              const cat = CATEGORIES[k];
+              const Icon = cat.Icon;
+              const n = counts[k] || 0;
+              return (
+                <button key={k} onClick={() => openCategory(k)} className="card group relative flex flex-col items-start gap-3 overflow-hidden rounded-2xl border border-stone-200 bg-white p-4 text-start ring-soft sm:p-5">
+                  <span className={`grain relative flex h-12 w-12 items-center justify-center rounded-xl ${ACCENT[cat.accent]}`}><Icon className="h-6 w-6" /></span>
+                  <span className="w-full">
+                    <span className="disp block text-lg font-semibold leading-tight text-stone-900">{t(cat.labelEn, cat.labelAr)}</span>
+                    <span className="mt-0.5 flex items-center justify-between">
+                      <span className="text-xs text-stone-500">{n} {t(n === 1 ? "station" : "stations", "محطّة")}</span>
+                      <ChevronRight className="h-4 w-4 text-stone-300 transition group-hover:translate-x-0.5 group-hover:text-stone-600" />
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <button onClick={requireFacultyThenNew} className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-stone-300 bg-white/70 px-5 py-4 text-sm font-medium text-stone-500 hover:border-stone-400 hover:text-stone-800">
+            {isFaculty ? <Plus className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+            {isFaculty ? t("Author a new station", "أنشئ محطّة جديدة") : t("Faculty sign-in to add stations", "دخول الهيئة لإضافة محطّات")}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  function CategoryView() {
+    const cat = CATEGORIES[catView] || CATEGORIES.other;
+    const Icon = cat.Icon;
+    const list = allCases().filter((c) => c.category === catView);
     return (
       <div className="px-5 py-8">
-        <p className="mono pine-text text-xs font-medium uppercase tracking-widest">{t("Examination circuit", "حلبة الامتحان")}</p>
-        <h1 className="disp mt-2 text-4xl font-semibold leading-tight tracking-tight text-stone-900">{t("Step into the station.", "ادخل إلى المحطّة.")}</h1>
-        <p className="mt-3 max-w-xl text-base leading-relaxed text-stone-600">
-          {t("Speak with a realistic AI patient under exam conditions, then read an official mark sheet — graded domain by domain, with the points you hit, the ones you missed, and how to improve.",
-             "تحدّث مع مريض افتراضي واقعي ضمن ظروف الامتحان، ثم اطّلع على بطاقة علامات رسمية — مُصحّحة بندًا ببند، مع ما أصبته وما فاتك وكيفية التحسّن.")}
-        </p>
-
-        {membership.billingEnabled && !membership.exempt && membership.status !== "active" && (
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-            <p className="text-sm text-amber-800">
-              {membership.freeLeft > 0
-                ? t(`Free trial — ${membership.freeLeft} of ${membership.freeLimit} stations left.`, `تجربة مجانية — تبقّى ${membership.freeLeft} من ${membership.freeLimit} محطّات.`)
-                : t("Your free trial is over. Subscribe to keep practising.", "انتهت تجربتك المجانية. اشترك لمواصلة التدرّب.")}
-            </p>
-            <button onClick={() => setView("paywall")} className="pine flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold"><Sparkles className="h-4 w-4" />{t("Go premium", "اشترك")}</button>
+        <button onClick={() => setView("home")} className="mb-6 flex items-center gap-1.5 text-sm font-medium text-stone-500 hover:text-stone-900"><ArrowLeft className="h-4 w-4" />{t("All specialties", "كل التخصّصات")}</button>
+        <div className="flex items-center gap-3">
+          <span className={`grain relative flex h-14 w-14 items-center justify-center rounded-2xl ${ACCENT[cat.accent]}`}><Icon className="h-7 w-7" /></span>
+          <div>
+            <h1 className="disp text-3xl font-semibold tracking-tight text-stone-900">{t(cat.labelEn, cat.labelAr)}</h1>
+            <p className="text-sm text-stone-500">{list.length} {t(list.length === 1 ? "topic to practice" : "topics to practice", "موضوع للتدرّب")}</p>
           </div>
-        )}
-
-        <div className="mt-6 flex flex-wrap gap-2">
-          {chips.map((k) => {
-            const on = catFilter === k;
-            const label = k === "all" ? t("All", "الكل") : t(CATEGORIES[k].labelEn, CATEGORIES[k].labelAr);
-            return (
-              <button key={k} onClick={() => setCatFilter(k)} className={`rounded-full px-3 py-1.5 text-sm font-medium ${on ? "pine" : "border border-stone-300 bg-white text-stone-600 hover:border-stone-400"}`}>{label}</button>
-            );
-          })}
         </div>
 
-        <div className="mt-6 divide-y divide-stone-200 border-y border-stone-200">
-          {builtinShown.map((c, i) => <StationRow key={c.id} c={c} n={i + 1} />)}
-          {builtinShown.length === 0 && customsShown.length === 0 && (
-            <p className="py-10 text-center text-sm text-stone-400">{t("No stations in this category yet.", "لا توجد محطّات في هذه الفئة بعد.")}</p>
+        <div className="mt-6 space-y-3">
+          {list.map((c) => <StationCard key={c.id} c={c} />)}
+          {list.length === 0 && (
+            <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-10 text-center">
+              <ClipboardList className="mx-auto h-8 w-8 text-stone-300" />
+              <p className="mt-3 text-sm text-stone-500">{t("No topics here yet.", "لا توجد مواضيع هنا بعد.")}</p>
+              <button onClick={requireFacultyThenNew} className="pine-text mt-3 inline-flex items-center gap-1 text-sm font-semibold">{isFaculty ? <Plus className="h-4 w-4" /> : <Lock className="h-4 w-4" />}{isFaculty ? t("Add one", "أضف واحدًا") : t("Faculty sign-in to add", "دخول الهيئة للإضافة")}</button>
+            </div>
           )}
         </div>
-
-        {customsShown.length > 0 && (
-          <>
-            <p className="mono mt-8 text-xs font-medium uppercase tracking-widest text-stone-400">{t("Faculty stations", "محطّات الهيئة")}</p>
-            <div className="mt-2 divide-y divide-stone-200 border-y border-stone-200">
-              {customsShown.map((c, i) => <StationRow key={c.id} c={c} n={builtinShown.length + i + 1} />)}
-            </div>
-          </>
-        )}
-
-        <button onClick={requireFacultyThenNew} className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-stone-300 bg-white px-5 py-4 text-sm font-medium text-stone-500 hover:border-stone-400 hover:text-stone-800">
-          {isFaculty ? <Plus className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
-          {isFaculty ? t("Author a new station", "أنشئ محطّة جديدة") : t("Faculty sign-in to add stations", "دخول الهيئة لإضافة محطّات")}
-        </button>
       </div>
+    );
+  }
+
+  // A station as a tappable card (used inside a specialty).
+  function StationCard({ c }) {
+    const Icon = c.Icon;
+    return (
+      <button onClick={() => openBrief(c)} className="card group flex w-full items-center gap-4 rounded-2xl border border-stone-200 bg-white p-4 text-start ring-soft">
+        <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${ACCENT[c.accent]}`}><Icon className="h-5 w-5" /></span>
+        <span className="min-w-0 flex-1">
+          <span className="flex flex-wrap items-center gap-2">
+            <span className="disp text-lg font-semibold leading-tight text-stone-900">{t(c.titleEn, c.titleAr)}</span>
+            {c.images && c.images.length > 0 && (
+              <span className="flex items-center gap-1 rounded-full bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-500"><ImageIcon className="h-3 w-3" />{c.images.length}</span>
+            )}
+            {c.custom && <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700">{t("Faculty", "هيئة")}</span>}
+          </span>
+          <span className="mt-0.5 block truncate text-sm text-stone-500">{t(c.blurbEn, c.blurbAr)}</span>
+        </span>
+        <span className="flex items-center gap-3 text-stone-400">
+          <span className="mono flex items-center gap-1 text-xs"><Clock className="h-3.5 w-3.5" />{Math.round(c.durationSec / 60)}m</span>
+          <ChevronRight className="h-5 w-5 transition group-hover:translate-x-0.5 group-hover:text-stone-700" />
+        </span>
+      </button>
     );
   }
 
