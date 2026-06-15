@@ -35,10 +35,13 @@ export async function initDb() {
       brief        TEXT NOT NULL,
       images       JSONB NOT NULL DEFAULT '[]'::jsonb,
       rubric       JSONB NOT NULL DEFAULT '[]'::jsonb,
+      script       JSONB NOT NULL DEFAULT '{}'::jsonb,
       is_public    BOOLEAN NOT NULL DEFAULT true,
       created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
     );
   `);
+  // For databases created before the scripted-patient feature.
+  await q(`ALTER TABLE stations ADD COLUMN IF NOT EXISTS script JSONB NOT NULL DEFAULT '{}'::jsonb;`);
 
   await q(`
     CREATE TABLE IF NOT EXISTS attempts (

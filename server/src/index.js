@@ -5,7 +5,7 @@ import { initDb } from "./db.js";
 import authRoutes from "./routes/auth.js";
 import stationRoutes from "./routes/stations.js";
 import attemptRoutes from "./routes/attempts.js";
-import claudeRoutes from "./routes/claude.js";
+import aiRoutes from "./routes/ai.js";
 
 const app = express();
 
@@ -24,7 +24,7 @@ app.get("/health", (_req, res) => res.json({ ok: true }));
 app.use("/auth", authRoutes);
 app.use("/stations", stationRoutes);
 app.use("/attempts", attemptRoutes);
-app.use("/api/claude", claudeRoutes);
+app.use("/api/ai", aiRoutes);
 
 const PORT = process.env.PORT || 8080;
 

@@ -1,16 +1,15 @@
 # Hakīm — OSCE clinical-skills trainer
 
-An AI-powered OSCE practice app. Learners talk to a realistic AI standardized
-patient under exam conditions, then receive an examiner-graded mark sheet.
-Faculty author their own stations, group them by specialty, and attach images
-(ECGs, X-rays, labs). Everyone signs in; every attempt — score and full
-transcript — is saved so learners can track progress and faculty can review
-their students.
+A free OSCE practice app. Learners talk to a standardized patient under exam
+conditions, then receive an examiner-graded mark sheet. Faculty author their own
+stations, group them by specialty, and attach images (ECGs, X-rays, labs).
+Everyone signs in; every attempt — score and full transcript — is saved so
+learners can track progress and faculty can review their students.
 
 This repo has two parts:
 
 ```
-server/   Node + Express + Postgres API  (auth, stations, attempts, AI proxy)
+server/   Node + Express + Postgres API  (auth, stations, attempts)
 web/      React (Vite) front-end          (the app learners and faculty use)
 ```
 
@@ -19,22 +18,26 @@ for reference; the live app is `web/src/OsceApp.jsx`.
 
 ---
 
-## How the AI works
+## How the patient and scoring work (and why it's free)
 
-All AI calls go through the backend, never the browser directly:
+The standardized patient is a **hybrid** designed to cost nothing to run:
 
-1. **Standardized patient** — when the learner sends a message, the front-end
-   calls `POST /api/claude`. The server attaches your secret Anthropic API key
-   and forwards a system prompt built from the station's hidden patient brief
-   (stay in character, reveal details only when asked, reply in 1–3 sentences,
-   EN/AR). The whole conversation is replayed each turn so the patient stays
-   consistent.
-2. **Examiner** — when the station ends, the rubric plus the full transcript are
-   sent (again via the proxy) with a strict "return only minified JSON" prompt.
-   The app parses that JSON into the mark sheet and then saves the attempt.
+1. **Scripted replies (free, instant, offline).** Each station has a list of
+   keyword-triggered answers the faculty wrote. When the student's question
+   contains any of a reply's keywords, the patient gives that answer — no
+   network call, no cost. Synonym keywords mean students can phrase a question
+   many ways and still match.
+2. **Free-tier AI fallback (optional).** When nothing matches, the server can
+   ask **Google Gemini's free tier** for a smart, in-character reply built from
+   the station's patient background. Get a free key at
+   <https://aistudio.google.com/apikey> and set `GEMINI_API_KEY`. Leave it blank
+   and the app simply uses the station's scripted fallback line — still fully
+   usable with **no AI and no key at all.**
+3. **Scoring is always local and free.** When the station ends, each rubric item
+   is marked done/missed by keyword-matching the student's transcript, in the
+   browser. No AI, deterministic, $0.
 
-Because the key lives only on the server, it never reaches users. Voice
-input/output uses the browser's Web Speech API and is not AI.
+Voice input/output uses the browser's Web Speech API and is not AI.
 
 ---
 
@@ -43,13 +46,14 @@ input/output uses the browser's Web Speech API and is not AI.
 If you have Docker, this brings up Postgres, the API, and the web app together:
 
 ```bash
-cp .env.example .env        # put your ANTHROPIC_API_KEY in it
+cp .env.example .env        # all values optional — see below
 docker compose up --build
 ```
 
 Then open http://localhost:5173. The database, tables, and all three services
-are created for you. Only `ANTHROPIC_API_KEY` is required; the rest default to
-local-dev values. (Add `GOOGLE_CLIENT_ID` to enable Google sign-in.)
+are created for you. **No keys are required** — it runs on the free scripted
+patient out of the box. Optionally add `GEMINI_API_KEY` (free) for the smart AI
+fallback, or `GOOGLE_CLIENT_ID` for Google sign-in.
 
 ## Run it locally — manual
 
@@ -72,7 +76,7 @@ npm run dev                 # starts on http://localhost:8080, creates tables au
 | `DATABASE_URL` | Postgres connection string |
 | `PGSSL` | `true` for hosted Postgres, `false` for local |
 | `JWT_SECRET` | Long random string. Generate: `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` |
-| `ANTHROPIC_API_KEY` | Your Anthropic key (from console.anthropic.com) |
+| `GEMINI_API_KEY` | *(optional)* Free Google Gemini key for the AI fallback (aistudio.google.com/apikey) |
 | `GOOGLE_CLIENT_ID` | Google OAuth client ID (optional — for Google sign-in) |
 | `FACULTY_CODE` | Anyone who signs up / upgrades with this code becomes faculty |
 | `CORS_ORIGINS` | Comma-separated web origins allowed to call the API |
@@ -109,7 +113,7 @@ You don't need your own servers. The cheapest reliable setup:
    **Root Directory** to `server`. Railway will run `npm install` then
    `npm start`.
 3. Add the environment variables from the table above. Use Railway's Postgres
-   string for `DATABASE_URL`, set `PGSSL=true`, paste your `ANTHROPIC_API_KEY`,
+   string for `DATABASE_URL`, set `PGSSL=true`, optionally add `GEMINI_API_KEY`,
    generate a `JWT_SECRET`, pick a `FACULTY_CODE`. Leave `CORS_ORIGINS` for now.
 4. Deploy. The tables are created automatically on first boot. Note the public
    URL Railway gives you (e.g. `https://hakim-api.up.railway.app`). Visit

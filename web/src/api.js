@@ -39,8 +39,8 @@ export const api = {
   myAttempts: () => req("/attempts/me"),
   allAttempts: (userId) => req("/attempts" + (userId ? `?userId=${userId}` : "")),
 
-  // ai proxy
-  claude: ({ system, messages }) => req("/api/claude", { method: "POST", body: { system, messages } }),
+  // free-tier AI fallback (Gemini) — used only when no scripted answer matches
+  ai: ({ system, messages }) => req("/api/ai", { method: "POST", body: { system, messages } }),
 };
 
 export const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";

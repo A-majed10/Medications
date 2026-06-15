@@ -25,7 +25,8 @@ services:
       DATABASE_URL: postgres://postgres:postgres@db:5432/hakim
       PGSSL: "false"
       JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.0-flash}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       FACULTY_CODE: ${FACULTY_CODE:-osce-faculty}
       CORS_ORIGINS: http://localhost:5173

@@ -26,11 +26,55 @@ const STYLE = `
 @keyframes fi{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
 `;
 
-// AI calls now go through our backend, which holds the Anthropic key securely
-// and only answers signed-in users.
-async function callClaude({ system, messages }) {
-  const { text } = await api.claude({ system, messages });
-  return text;
+// ---- offline scripted engine (no AI, no cost, no limits) ----
+// The "patient" answers from keyword-triggered replies the faculty fed in, and
+// the examiner scores the checklist by keyword matching. Everything runs in the
+// browser, so there are no API calls and nothing to pay for.
+const norm = (s) => (s || "").toLowerCase();
+const itemText = (it) => (typeof it === "string" ? it : it && it.text ? it.text : "");
+const itemKw = (it) => (it && typeof it === "object" && Array.isArray(it.keywords) ? it.keywords : []);
+const hasAnyKw = (text, kws) => kws.some((k) => k && norm(text).includes(norm(k.trim())));
+
+// Returns a scripted reply when the student's question matches fed keywords,
+// or null when nothing matches (so the caller can try the free AI fallback).
+function scriptMatch(c, userText) {
+  const responses = (c.script && c.script.responses) || [];
+  const t = norm(userText);
+  let best = null, bestScore = 0;
+  for (const r of responses) {
+    let score = 0;
+    for (const k of r.keywords || []) {
+      const kk = norm((k || "").trim());
+      if (kk && t.includes(kk)) score += 1;
+    }
+    if (score > bestScore) { bestScore = score; best = r; }
+  }
+  return best ? best.reply : null;
+}
+const scriptFallback = (c, ar) => (c.script && c.script.fallback) || (ar ? "لست متأكدًا، هل يمكنك إعادة صياغة السؤال؟" : "I'm not sure what you mean — could you ask that another way?");
+
+function scoreLocally(c, messages) {
+  const studentText = messages.filter((m) => m.role === "student").map((m) => m.content).join("\n");
+  const domains = (c.rubric || []).map((d) => {
+    const items = (d.items || []).map((it) => {
+      const kws = itemKw(it);
+      if (kws.length === 0) return { text: itemText(it), status: "na", note: "not auto-scored" };
+      return { text: itemText(it), status: hasAnyKw(studentText, kws) ? "done" : "missed" };
+    });
+    const scorable = items.filter((i) => i.status !== "na");
+    const done = items.filter((i) => i.status === "done").length;
+    return { name: d.name, items, scored: done, max: scorable.length };
+  });
+  const totalDone = domains.reduce((s, d) => s + d.scored, 0);
+  const totalMax = domains.reduce((s, d) => s + d.max, 0) || 1;
+  const overall = Math.round((totalDone / totalMax) * 100);
+  const verdict = overall >= 70 ? "Clear pass" : overall >= 50 ? "Borderline" : "Fail";
+  const strengths = [], improvements = [];
+  domains.forEach((d) => d.items.forEach((i) => {
+    if (i.status === "done") strengths.push(i.text);
+    else if (i.status === "missed") improvements.push(i.text);
+  }));
+  return { overall, verdict, domains, strengths: strengths.slice(0, 5), improvements: improvements.slice(0, 6), expected: (c.script && c.script.expected) || "" };
 }
 
 const ACCENT = {
@@ -102,10 +146,53 @@ HIDDEN CASE — reveal each detail ONLY when the doctor asks a relevant question
 - Otherwise healthy, no other regular medicines, no allergies.
 BEHAVIOUR: talk like an ordinary worried patient in short everyday sentences, never medical jargon. Answer only what is asked, 1-2 sentences at a time. Show mild anxiety. Stay fully in character; never mention this is an exam.`,
     rubric: [
-      { name: "Opening & rapport", items: ["Introduces self and role", "Confirms the patient's name / identity", "Opens with an open question", "Uses clear, jargon-free language", "Shows empathy and listens actively"] },
-      { name: "Focused history & red flags", items: ["Characterises the pain (SOCRATES: site, onset, character, radiation, timing, severity)", "Asks about relieving / aggravating factors (food, antacids, hunger, night)", "Asks about NSAID / painkiller use", "Screens alarm features (weight loss, dysphagia, blood in vomit, black stools)", "Takes drug, allergy and relevant past history", "Asks about smoking, alcohol and caffeine"] },
-      { name: "ICE, reasoning & closing", items: ["Explores ideas, concerns and expectations (e.g. fear of cancer)", "Acknowledges and addresses the patient's worry", "Summarises the history back to the patient", "Suggests a sensible plan / next steps and safety-nets"] },
+      { name: "Opening & rapport", items: [
+        { text: "Introduces self and role", keywords: ["my name", "i'm dr", "i am dr", "doctor", "introduce"] },
+        { text: "Confirms the patient's name / identity", keywords: ["your name", "confirm", "who am i speaking", "date of birth", "how old"] },
+        { text: "Opens with an open question", keywords: ["what brings", "how can i help", "tell me", "what's been going on", "what's the problem", "what's wrong"] },
+        { text: "Shows empathy and listens actively", keywords: ["sorry to hear", "that sounds", "i understand", "must be", "i can see"] },
+      ] },
+      { name: "Focused history & red flags", items: [
+        { text: "Characterises the pain (site, onset, character, radiation, timing, severity)", keywords: ["where", "describe", "how long", "when did", "radiate", "severity", "out of 10", "what kind"] },
+        { text: "Asks about relieving / aggravating factors (food, antacids, hunger, night)", keywords: ["better", "worse", "food", "antacid", "empty", "night", "relieve"] },
+        { text: "Asks about NSAID / painkiller use", keywords: ["painkiller", "ibuprofen", "nsaid", "anti-inflammatory", "tablets for pain"] },
+        { text: "Screens alarm features (weight loss, dysphagia, blood in vomit, black stools)", keywords: ["weight", "vomit", "black stool", "swallow", "dysphagia", "blood"] },
+        { text: "Takes drug, allergy and relevant past history", keywords: ["allergy", "allergic", "past medical", "regular medicine", "other conditions", "other illness"] },
+        { text: "Asks about smoking, alcohol and caffeine", keywords: ["smoke", "alcohol", "coffee", "caffeine", "cigarette"] },
+      ] },
+      { name: "ICE, reasoning & closing", items: [
+        { text: "Explores ideas, concerns and expectations (e.g. fear of cancer)", keywords: ["worry", "worried", "concern", "what do you think", "hoping", "expect", "on your mind"] },
+        { text: "Summarises the history back to the patient", keywords: ["to summarise", "so to summarise", "let me recap", "just to confirm"] },
+        { text: "Suggests a sensible plan / next steps and safety-nets", keywords: ["plan", "endoscopy", "test", "ppi", "prescribe", "come back if", "next step", "safety"] },
+      ] },
     ],
+    script: {
+      fallback: "I'm not sure, doctor — could you ask me that a different way?",
+      expected: "Likely peptic ulcer / NSAID-related gastritis. Advise stopping NSAIDs, consider a PPI and H. pylori testing, and safety-net for alarm features.",
+      responses: [
+        { keywords: ["hello", "hi ", "good morning", "good afternoon", "my name", "i'm dr", "i am dr", "introduce"], reply: "Hello doctor. I'm Karim, thanks for seeing me." },
+        { keywords: ["your name", "who are you", "confirm your name", "date of birth", "how old"], reply: "I'm Karim Haddad, I'm 45." },
+        { keywords: ["what brings", "how can i help", "what's the problem", "what's wrong", "tell me", "what's been going on", "what can i do"], reply: "I've had this burning pain in the top of my tummy for about three weeks now." },
+        { keywords: ["where", "point to", "location", "which part"], reply: "It's right here, in the middle, just below my chest." },
+        { keywords: ["describe", "what kind", "sharp", "dull", "burning", "type of pain", "feel like"], reply: "It's a burning sort of pain." },
+        { keywords: ["when did", "how long", "start", "begin"], reply: "About three weeks ago, on and off." },
+        { keywords: ["night", "worse", "empty", "hungry", "time of day", "wake"], reply: "It's worse when my stomach is empty and at night — it sometimes wakes me around 2am." },
+        { keywords: ["better", "relieve", "eating", "food", "antacid", "milk"], reply: "Eating and antacids make it better." },
+        { keywords: ["how bad", "severity", "scale", "out of 10", "score the pain"], reply: "About 6 out of 10 at its worst." },
+        { keywords: ["radiate", "move", "spread", "back", "chest"], reply: "No, it doesn't move anywhere." },
+        { keywords: ["painkiller", "ibuprofen", "nsaid", "anti-inflammatory", "tablets"], reply: "I take ibuprofen almost every day for my back, for about two months now." },
+        { keywords: ["weight", "appetite"], reply: "No, my weight and appetite are normal." },
+        { keywords: ["vomit", "throwing up", "sick"], reply: "No, I haven't vomited any blood." },
+        { keywords: ["stool", "black", "bowel", "poo", "melaena"], reply: "No, nothing black in my stools." },
+        { keywords: ["swallow", "dysphagia", "sticking"], reply: "No trouble swallowing." },
+        { keywords: ["smoke", "cigarette", "alcohol", "drink", "coffee", "caffeine"], reply: "I smoke about 10 a day, 3 or 4 coffees, and only occasional alcohol." },
+        { keywords: ["past medical", "other illness", "regular medicine", "allergic", "allergy", "other conditions", "health problems"], reply: "I'm otherwise healthy, no allergies, just the ibuprofen." },
+        { keywords: ["family", "father", "mother", "run in", "relatives"], reply: "My father died of stomach cancer at 60." },
+        { keywords: ["worry", "worried", "concern", "afraid", "scared", "on your mind", "what do you think"], reply: "Honestly, I'm scared it's cancer like my father had." },
+        { keywords: ["hoping", "expect", "want me to do"], reply: "I was hoping you could find out what's wrong and reassure me." },
+        { keywords: ["to summarise", "so to summarise", "recap", "plan", "next step", "endoscopy", "prescribe", "come back if", "safety"], reply: "Okay doctor, that sounds reasonable, thank you." },
+      ],
+    },
   },
   {
     id: "chest", category: "cardio", Icon: Heart, accent: "rose",
@@ -128,10 +215,51 @@ HIDDEN CASE — reveal each detail ONLY when asked a relevant question. Never vo
 - You are worried it might be your heart.
 BEHAVIOUR: speak like an ordinary patient in short everyday sentences. Answer only what is asked, 1-2 sentences at a time. Stay fully in character; never mention this is an exam.`,
     rubric: [
-      { name: "Opening & rapport", items: ["Introduces self and role", "Confirms the patient's identity", "Starts with an open question", "Communicates clearly and empathically"] },
-      { name: "Cardiac history & risk", items: ["Characterises the chest pain (SOCRATES)", "Asks about relation to exertion and rest", "Screens associated symptoms (breathlessness, sweating, nausea, palpitations)", "Asks cardiac risk factors (smoking, hypertension, diabetes, cholesterol, family history)", "Asks about red flags (pain at rest, prolonged pain, fainting)", "Takes drug, allergy and past medical history"] },
-      { name: "ICE, reasoning & closing", items: ["Explores ideas, concerns and expectations", "Forms a reasonable differential (e.g. stable angina vs acute coronary syndrome)", "Reviews the ECG and comments on it", "Summarises and explains next steps (ECG, bloods, safety-net advice)"] },
+      { name: "Opening & rapport", items: [
+        { text: "Introduces self and role", keywords: ["my name", "i'm dr", "i am dr", "doctor", "introduce"] },
+        { text: "Confirms the patient's identity", keywords: ["your name", "confirm", "who am i speaking", "date of birth", "how old"] },
+        { text: "Starts with an open question", keywords: ["what brings", "how can i help", "tell me", "what's been going on", "what's the problem"] },
+        { text: "Communicates clearly and empathically", keywords: ["i understand", "i can see", "that sounds", "sorry to hear"] },
+      ] },
+      { name: "Cardiac history & risk", items: [
+        { text: "Characterises the chest pain (site, character, radiation, severity, timing)", keywords: ["where", "describe", "how long", "radiate", "arm", "severity", "out of 10", "what kind"] },
+        { text: "Asks about relation to exertion and rest", keywords: ["exert", "stairs", "walking", "rest", "exercise", "climb", "activity"] },
+        { text: "Screens associated symptoms (breathlessness, sweating, nausea, palpitations)", keywords: ["breathless", "short of breath", "sweat", "nausea", "palpitation"] },
+        { text: "Asks cardiac risk factors (smoking, hypertension, diabetes, cholesterol, family)", keywords: ["smoke", "blood pressure", "hypertension", "diabetes", "cholesterol", "family", "cigarette"] },
+        { text: "Asks about red flags (pain at rest, prolonged pain, fainting)", keywords: ["at rest", "right now", "prolonged", "faint", "collapse"] },
+        { text: "Takes drug, allergy and past medical history", keywords: ["medication", "amlodipine", "allergy", "allergic", "past medical", "other conditions"] },
+      ] },
+      { name: "ICE, reasoning & closing", items: [
+        { text: "Explores ideas, concerns and expectations", keywords: ["worry", "worried", "concern", "what do you think", "hoping", "expect", "on your mind"] },
+        { text: "Forms a reasonable differential (e.g. angina)", keywords: ["angina", "heart", "coronary", "your heart"] },
+        { text: "Reviews the ECG and comments on it", keywords: ["ecg", "tracing", "trace"] },
+        { text: "Summarises and explains next steps (ECG, bloods, safety-net advice)", keywords: ["to summarise", "recap", "plan", "blood test", "refer", "next step", "safety"] },
+      ] },
     ],
+    script: {
+      fallback: "Sorry doctor, I didn't quite follow — could you ask again?",
+      expected: "Likely stable angina. Arrange an ECG and bloods, start anti-anginal / secondary prevention, and safety-net for rest pain or prolonged pain (possible ACS).",
+      responses: [
+        { keywords: ["hello", "hi ", "good morning", "good afternoon", "my name", "i'm dr", "i am dr", "introduce"], reply: "Hello doctor, I'm Salma." },
+        { keywords: ["your name", "who are you", "confirm your name", "date of birth", "how old"], reply: "I'm Salma Karam, I'm 58." },
+        { keywords: ["what brings", "how can i help", "what's the problem", "what's wrong", "tell me", "what's been going on"], reply: "I've been getting a tightness in my chest, on and off for a couple of weeks." },
+        { keywords: ["where", "point", "location", "which part"], reply: "It's right in the centre of my chest." },
+        { keywords: ["describe", "what kind", "tight", "pressure", "sharp", "feel like"], reply: "It feels like a tight pressure." },
+        { keywords: ["exert", "walking", "stairs", "climb", "activity", "come on", "bring it on", "exercise", "doing"], reply: "It comes on when I climb stairs or walk uphill." },
+        { keywords: ["rest", "stop", "go away", "ease", "relieve", "better", "settle"], reply: "It eases after a few minutes when I rest." },
+        { keywords: ["radiate", "spread", "arm", "jaw", "move"], reply: "Sometimes it spreads to my left arm." },
+        { keywords: ["breathless", "short of breath", "sweat", "nausea", "sick", "palpitation", "dizzy"], reply: "I feel a little breathless with it. No sweating or palpitations." },
+        { keywords: ["how long", "when did", "start", "weeks"], reply: "For about two weeks, and a bit more often this week." },
+        { keywords: ["how bad", "out of 10", "severity", "scale"], reply: "About 5 out of 10." },
+        { keywords: ["at rest", "right now", "pain now", "faint", "collapse"], reply: "No pain right now, and never at rest. I haven't fainted." },
+        { keywords: ["smoke", "cigarette", "blood pressure", "hypertension", "diabetes", "cholesterol", "family", "father"], reply: "I have high blood pressure on amlodipine, I smoke about 15 a day, and my father had a heart attack at 55. No diabetes that I know of." },
+        { keywords: ["medication", "amlodipine", "allergy", "allergic", "past medical", "other conditions", "regular medicine"], reply: "I take amlodipine for blood pressure, no allergies." },
+        { keywords: ["worry", "worried", "concern", "afraid", "scared", "on your mind", "what do you think"], reply: "I'm worried it's my heart." },
+        { keywords: ["hoping", "expect", "want me to"], reply: "I'm hoping you can tell me what's going on." },
+        { keywords: ["ecg", "tracing", "trace", "review the"], reply: "Yes doctor, here is the ECG you asked for." },
+        { keywords: ["to summarise", "recap", "plan", "blood test", "refer", "next step", "safety"], reply: "Thank you doctor, that makes sense." },
+      ],
+    },
   },
   {
     id: "bbn", category: "comm", Icon: MessageSquare, accent: "violet",
@@ -151,15 +279,44 @@ REACT LIKE A REAL PERSON:
 - Do not make it easy by being unrealistically calm.
 BEHAVIOUR: speak in short, human, emotional sentences. Do not narrate your feelings clinically — show them. Never mention this is an exam or refer to a protocol.`,
     rubric: [
-      { name: "Setup & perception", items: ["Sets up well (introduces self, ensures privacy, confirms who the patient is)", "Assesses what the patient already knows or understands", "Checks how much the patient wants to know (invitation)"] },
-      { name: "Knowledge & empathy", items: ["Gives a warning shot before the news", "Delivers the news clearly, in plain language, in small chunks", "Pauses and allows silence / time to react", "Responds to emotion with empathy (names and validates feelings)"] },
-      { name: "Strategy & summary", items: ["Avoids false reassurance and unprompted prognosis", "Outlines a clear plan / next steps", "Checks understanding and offers support and follow-up"] },
+      { name: "Setup & perception", items: [
+        { text: "Sets up well (introduces self, ensures privacy, confirms who the patient is)", keywords: ["my name", "introduce", "privacy", "is it okay", "who am i speaking", "i'm dr"] },
+        { text: "Assesses what the patient already knows or understands", keywords: ["what do you understand", "what have you been told", "what do you know", "do you know why"] },
+        { text: "Checks how much the patient wants to know (invitation)", keywords: ["how much", "would you like me to", "do you want to know", "want me to explain"] },
+      ] },
+      { name: "Knowledge & empathy", items: [
+        { text: "Gives a warning shot before the news", keywords: ["i'm afraid", "bad news", "not what we hoped", "serious", "sorry to say", "results aren't"] },
+        { text: "Delivers the news clearly, in plain language", keywords: ["cancer", "tumour", "malignant"] },
+        { text: "Pauses and allows silence / time to react", keywords: ["take your time", "take a moment", "i'll give you", "no rush"] },
+        { text: "Responds to emotion with empathy", keywords: ["i'm so sorry", "i can see", "this must be", "understand how", "here for you"] },
+      ] },
+      { name: "Strategy & summary", items: [
+        { text: "Avoids false reassurance and unprompted prognosis", keywords: [] },
+        { text: "Outlines a clear plan / next steps", keywords: ["plan", "refer", "specialist", "oncolog", "treatment", "next step", "scan"] },
+        { text: "Checks understanding and offers support and follow-up", keywords: ["does that make sense", "support", "follow up", "someone with you", "specialist nurse", "contact"] },
+      ] },
     ],
+    script: {
+      fallback: "(quietly) I'm sorry, I don't understand — can you say that again?",
+      expected: "Use SPIKES: set up, find out what she knows, get her invitation, give a warning shot, deliver the news in plain language in small chunks, respond to emotion, then a clear plan and support — avoid false reassurance.",
+      responses: [
+        { keywords: ["hello", "hi ", "good morning", "my name", "i'm dr", "i am dr", "introduce", "is it okay", "privacy"], reply: "Hello doctor. I've been so anxious waiting for these results." },
+        { keywords: ["what do you understand", "what have you been told", "what do you know", "do you know why", "remember why"], reply: "I had the camera test last week because of some bleeding. I've been worried about what it might show." },
+        { keywords: ["how much", "would you like me to", "do you want to know", "want me to explain", "shall i"], reply: "Yes, please tell me everything. I need to know." },
+        { keywords: ["i'm afraid", "bad news", "not what we hoped", "serious", "sorry to say", "results aren't"], reply: "Oh... that doesn't sound good. Please, just tell me." },
+        { keywords: ["cancer", "tumour", "malignant"], reply: "Cancer? Oh my God... am I going to die?" },
+        { keywords: ["treatment", "treatable", "can be treated", "options", "oncolog", "surgery", "plan", "next step", "refer", "scan"], reply: "So there's something we can do? What happens now?" },
+        { keywords: ["i'm so sorry", "take your time", "take a moment", "i can see", "this must be", "here for you", "no rush"], reply: "(tearful) Thank you... it's a lot to take in." },
+        { keywords: ["support", "not alone", "follow up", "come back", "contact", "specialist nurse", "someone with you", "make sense"], reply: "Thank you, doctor. That helps a little." },
+      ],
+    },
   },
 ];
 
 const fmt = (sec) => `${Math.floor(sec / 60)}:${(sec % 60).toString().padStart(2, "0")}`;
-const blankDraft = () => ({ id: null, title: "", category: "other", durationMin: 8, task: "", brief: "", images: [], rubric: [{ name: "", items: [""] }] });
+const blankDraft = () => ({ id: null, title: "", category: "other", durationMin: 8, task: "", brief: "", images: [], rubric: [{ name: "", items: [{ text: "", keywords: "" }] }], responses: [{ keywords: "", reply: "" }], fallback: "", expected: "" });
+const kwToStr = (k) => (Array.isArray(k) ? k.join(", ") : k || "");
+const strToKw = (s) => (s || "").split(",").map((x) => x.trim()).filter(Boolean);
 
 function normalizeCustom(c) {
   const cat = CATEGORIES[c.category] || CATEGORIES.other;
@@ -171,7 +328,7 @@ function normalizeCustom(c) {
     blurbEn: (c.task || "").slice(0, 90), blurbAr: (c.task || "").slice(0, 90),
     taskEn: c.task || c.title, taskAr: c.task || c.title,
     images: Array.isArray(c.images) ? c.images : [],
-    brief: c.brief, rubric: c.rubric, knowsDx: false,
+    brief: c.brief, rubric: c.rubric, script: c.script || {}, knowsDx: false,
   };
 }
 
@@ -342,13 +499,34 @@ export default function App({ user, onUser, onSignOut }) {
     const next = [...messages, { role: "student", content: clean }];
     setMessages(next); setInput(""); setWaiting(true);
     if (hasTTS) window.speechSynthesis.cancel();
-    callClaude({
-      system: `You are role-playing a standardized patient in a medical OSCE station. ${activeCase.brief}
-Reply in ${ar ? "clear, natural Modern Standard Arabic" : "English"}. Keep each reply to 1-3 short, realistic sentences.`,
+
+    // Hybrid patient: try the free, offline scripted answer first.
+    const scripted = scriptMatch(activeCase, clean);
+    if (scripted) {
+      setTimeout(() => {
+        setMessages((p) => [...p, { role: "patient", content: scripted }]);
+        speak(scripted);
+        setWaiting(false);
+      }, 300);
+      return;
+    }
+
+    // Nothing matched — fall back to the free-tier AI if it's configured.
+    api.ai({
+      system: `You are role-playing a standardized patient in a medical OSCE station. ${activeCase.brief || ""}
+Reveal details only when asked. Reply in ${ar ? "clear, natural Modern Standard Arabic" : "English"}, 1-2 short, realistic sentences, in character. Never mention this is an exam.`,
       messages: next.map((m) => ({ role: m.role === "student" ? "user" : "assistant", content: m.content })),
     })
-      .then((reply) => { const r = reply || "…"; setMessages((p) => [...p, { role: "patient", content: r }]); speak(r); })
-      .catch(() => setMessages((p) => [...p, { role: "patient", content: t("(No response — check the connection and try again.)", "(لا يوجد رد — تحقّق من الاتصال وحاول مجددًا.)"), err: true }]))
+      .then(({ text: reply }) => {
+        const r = (reply && reply.trim()) || scriptFallback(activeCase, ar);
+        setMessages((p) => [...p, { role: "patient", content: r }]);
+        speak(r);
+      })
+      .catch(() => {
+        const r = scriptFallback(activeCase, ar);
+        setMessages((p) => [...p, { role: "patient", content: r }]);
+        speak(r);
+      })
       .finally(() => setWaiting(false));
   }
   const send = () => sendText(input);
@@ -359,21 +537,10 @@ Reply in ${ar ? "clear, natural Modern Standard Arabic" : "English"}. Keep each 
     setView("results"); scoreNow();
   }
 
-  async function scoreNow() {
+  function scoreNow() {
     setScoring(true); setScoreError(false);
-    const transcript = messages.map((m) => `${m.role === "student" ? "CANDIDATE (doctor)" : "PATIENT"}: ${m.content}`).join("\n") || "(The candidate said nothing.)";
-    const rubricText = activeCase.rubric.map((d) => `${d.name}:\n` + d.items.map((it) => `  - ${it}`).join("\n")).join("\n");
-    const sys = `You are a senior OSCE examiner grading a candidate. Be fair but rigorous; reward only what the candidate actually did in the transcript.
-Each rubric item is worth 1 point: status "done" = full credit, "partial" = half, "missed" = none. A domain's "max" is its number of items. "overall" = round(total points / total items * 100).
-Return ONLY valid minified JSON, no markdown, no code fences, no preamble, exactly this shape:
-{"overall":<int 0-100>,"verdict":"<Clear pass|Borderline|Fail>","domains":[{"name":"<domain>","scored":<number>,"max":<int>,"items":[{"text":"<rubric item>","status":"done|partial|missed","note":"<max 12 words>"}]}],"strengths":["<short>"],"improvements":["<short>"],"expected":"<1-2 sentences: likely diagnosis or model approach>"}`;
-    const user = `RUBRIC:\n${rubricText}\n\nENCOUNTER TRANSCRIPT:\n${transcript}`;
     try {
-      let raw = await callClaude({ system: sys, messages: [{ role: "user", content: user }] });
-      raw = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
-      const a = raw.indexOf("{"), b = raw.lastIndexOf("}");
-      if (a !== -1 && b !== -1) raw = raw.slice(a, b + 1);
-      const parsed = JSON.parse(raw);
+      const parsed = scoreLocally(activeCase, messages);
       setFeedback(parsed);
       saveAttempt(parsed);
     } catch (e) { setScoreError(true); }
@@ -405,14 +572,34 @@ Return ONLY valid minified JSON, no markdown, no code fences, no preamble, exact
 
   // ---- editor helpers ----
   function newStation() { setDraft(blankDraft()); setEditingId(null); setEditorError(""); setView("editor"); }
-  function editStation(c) { setDraft({ id: c.id, title: c.title, category: c.category || "other", durationMin: c.durationMin || 8, task: c.task || "", brief: c.brief || "", images: Array.isArray(c.images) ? c.images.map((im) => ({ ...im })) : [], rubric: c.rubric && c.rubric.length ? c.rubric.map((d) => ({ name: d.name, items: [...d.items] })) : [{ name: "", items: [""] }] }); setEditingId(c.id); setEditorError(""); setView("editor"); }
+  function editStation(c) {
+    setDraft({
+      id: c.id, title: c.title, category: c.category || "other", durationMin: c.durationMin || 8,
+      task: c.task || "", brief: c.brief || "",
+      images: Array.isArray(c.images) ? c.images.map((im) => ({ ...im })) : [],
+      rubric: c.rubric && c.rubric.length
+        ? c.rubric.map((d) => ({ name: d.name, items: (d.items || []).map((it) => ({ text: itemText(it), keywords: kwToStr(itemKw(it)) })) }))
+        : [{ name: "", items: [{ text: "", keywords: "" }] }],
+      responses: (c.script && c.script.responses && c.script.responses.length)
+        ? c.script.responses.map((r) => ({ keywords: kwToStr(r.keywords), reply: r.reply || "" }))
+        : [{ keywords: "", reply: "" }],
+      fallback: (c.script && c.script.fallback) || "",
+      expected: (c.script && c.script.expected) || "",
+    });
+    setEditingId(c.id); setEditorError(""); setView("editor");
+  }
   function updateDraft(patch) { setDraft((d) => ({ ...d, ...patch })); }
   function setDomainName(i, v) { setDraft((d) => { const r = d.rubric.map((dm, k) => k === i ? { ...dm, name: v } : dm); return { ...d, rubric: r }; }); }
-  function setItem(di, ii, v) { setDraft((d) => { const r = d.rubric.map((dm, k) => k === di ? { ...dm, items: dm.items.map((it, j) => j === ii ? v : it) } : dm); return { ...d, rubric: r }; }); }
-  function addItem(di) { setDraft((d) => { const r = d.rubric.map((dm, k) => k === di ? { ...dm, items: [...dm.items, ""] } : dm); return { ...d, rubric: r }; }); }
+  function setItem(di, ii, field, v) { setDraft((d) => { const r = d.rubric.map((dm, k) => k === di ? { ...dm, items: dm.items.map((it, j) => j === ii ? { ...it, [field]: v } : it) } : dm); return { ...d, rubric: r }; }); }
+  function addItem(di) { setDraft((d) => { const r = d.rubric.map((dm, k) => k === di ? { ...dm, items: [...dm.items, { text: "", keywords: "" }] } : dm); return { ...d, rubric: r }; }); }
   function removeItem(di, ii) { setDraft((d) => { const r = d.rubric.map((dm, k) => k === di ? { ...dm, items: dm.items.filter((_, j) => j !== ii) } : dm); return { ...d, rubric: r }; }); }
-  function addDomain() { setDraft((d) => ({ ...d, rubric: [...d.rubric, { name: "", items: [""] }] })); }
+  function addDomain() { setDraft((d) => ({ ...d, rubric: [...d.rubric, { name: "", items: [{ text: "", keywords: "" }] }] })); }
   function removeDomain(di) { setDraft((d) => ({ ...d, rubric: d.rubric.filter((_, k) => k !== di) })); }
+
+  // ---- scripted-reply helpers ----
+  function setResponse(i, field, v) { setDraft((d) => ({ ...d, responses: d.responses.map((r, k) => k === i ? { ...r, [field]: v } : r) })); }
+  function addResponse() { setDraft((d) => ({ ...d, responses: [...(d.responses || []), { keywords: "", reply: "" }] })); }
+  function removeResponse(i) { setDraft((d) => ({ ...d, responses: d.responses.filter((_, k) => k !== i) })); }
 
   // ---- image helpers ----
   function addImageFiles(fileList) {
@@ -431,13 +618,17 @@ Return ONLY valid minified JSON, no markdown, no code fences, no preamble, exact
   async function saveDraft() {
     const title = draft.title.trim();
     const brief = draft.brief.trim();
-    const rubric = draft.rubric.map((d) => ({ name: d.name.trim(), items: d.items.map((i) => i.trim()).filter(Boolean) })).filter((d) => d.name && d.items.length);
-    if (!title || !brief || rubric.length === 0) {
-      setEditorError(t("Add a title, a patient brief, and at least one rubric domain with one item.", "أضف عنوانًا، ونص حالة المريض، ومجالًا واحدًا على الأقل في سلّم العلامات مع بند واحد."));
+    const rubric = draft.rubric
+      .map((d) => ({ name: d.name.trim(), items: d.items.map((i) => ({ text: (i.text || "").trim(), keywords: strToKw(i.keywords) })).filter((i) => i.text) }))
+      .filter((d) => d.name && d.items.length);
+    if (!title || rubric.length === 0) {
+      setEditorError(t("Add a title and at least one rubric domain with one checklist item.", "أضف عنوانًا ومجالًا واحدًا على الأقل في سلّم العلامات مع بند واحد."));
       return;
     }
     const images = (draft.images || []).map((im) => ({ label: (im.label || "").trim() || t("Image", "صورة"), src: im.src })).filter((im) => im.src);
-    const payload = { title, category: draft.category || "other", durationMin: Number(draft.durationMin) || 8, task: draft.task.trim() || title, brief, images, rubric };
+    const responses = (draft.responses || []).map((r) => ({ keywords: strToKw(r.keywords), reply: (r.reply || "").trim() })).filter((r) => r.reply && r.keywords.length);
+    const script = { responses, fallback: draft.fallback.trim(), expected: draft.expected.trim() };
+    const payload = { title, category: draft.category || "other", durationMin: Number(draft.durationMin) || 8, task: draft.task.trim() || title, brief, images, rubric, script };
     try {
       if (editingId) {
         const { station } = await api.updateStation(editingId, payload);
@@ -505,7 +696,7 @@ Return ONLY valid minified JSON, no markdown, no code fences, no preamble, exact
             {isFaculty && <span className="rounded-full bg-emerald-100 px-2 py-0.5 font-medium text-emerald-700">{t("Faculty", "هيئة")}</span>}
             <button onClick={onSignOut} className="flex items-center gap-1 text-stone-400 hover:text-stone-700"><LogOut className="h-3.5 w-3.5" />{t("Sign out", "خروج")}</button>
           </span>
-          <span>{t("AI standardized patient. Practice tool — not for real clinical use.", "مريض افتراضي بالذكاء الاصطناعي. أداة تدريب — ليست للاستخدام السريري.")}</span>
+          <span>{t("Scripted standardized patient. Practice tool — not for real clinical use.", "مريض افتراضي مكتوب. أداة تدريب — ليست للاستخدام السريري.")}</span>
         </footer>
       </div>
 
@@ -535,7 +726,7 @@ Return ONLY valid minified JSON, no markdown, no code fences, no preamble, exact
         <p className="mono pine-text text-xs font-medium uppercase tracking-widest">{t("Examination circuit", "حلبة الامتحان")}</p>
         <h1 className="disp mt-2 text-4xl font-semibold leading-tight tracking-tight text-stone-900">{t("Step into the station.", "ادخل إلى المحطّة.")}</h1>
         <p className="mt-3 max-w-xl text-base leading-relaxed text-stone-600">
-          {t("Speak with a realistic AI patient under exam conditions, then read an official mark sheet — graded domain by domain, with the points you hit, the ones you missed, and how to improve.",
+          {t("Speak with a realistic standardized patient under exam conditions, then read an official mark sheet — graded domain by domain, with the points you hit, the ones you missed, and how to improve.",
              "تحدّث مع مريض افتراضي واقعي ضمن ظروف الامتحان، ثم اطّلع على بطاقة علامات رسمية — مُصحّحة بندًا ببند، مع ما أصبته وما فاتك وكيفية التحسّن.")}
         </p>
 
@@ -924,9 +1115,39 @@ Return ONLY valid minified JSON, no markdown, no code fences, no preamble, exact
             <textarea value={draft.task} onChange={(e) => updateDraft({ task: e.target.value })} rows={3} placeholder={t("You are the doctor in clinic. Take a focused history…", "أنت الطبيب في العيادة. خذ قصة مرضية مركزة…")} className="field w-full resize-none rounded-lg border border-stone-300 px-3.5 py-2.5 text-base" />
           </Labeled>
 
-          <Labeled label={t("Patient brief (hidden)", "نص المريض (مخفي)")} hint={t("The patient's story and behaviour. The AI reveals details only when the student asks.", "قصة المريض وسلوكه. يكشف الذكاء الاصطناعي التفاصيل فقط عند سؤال الطالب.")}>
-            <textarea value={draft.brief} onChange={(e) => updateDraft({ brief: e.target.value })} rows={6} placeholder={t("You are a 30-year-old with a cough for 5 days… Reveal each detail only when asked.", "أنت مريض عمره 30 عامًا تعاني من سعال منذ 5 أيام… اكشف كل تفصيل فقط عند سؤالك.")} className="field w-full resize-none rounded-lg border border-stone-300 px-3.5 py-2.5 text-base" />
+          <Labeled label={t("Patient background", "خلفية المريض")} hint={t("The patient's story. Used only by the free AI fallback when no scripted reply matches.", "قصة المريض. تُستخدم فقط من الذكاء الاصطناعي الاحتياطي عند عدم تطابق أي رد مكتوب.")}>
+            <textarea value={draft.brief} onChange={(e) => updateDraft({ brief: e.target.value })} rows={5} placeholder={t("You are a 30-year-old with a cough for 5 days… Reveal each detail only when asked.", "أنت مريض عمره 30 عامًا تعاني من سعال منذ 5 أيام… اكشف كل تفصيل فقط عند سؤالك.")} className="field w-full resize-none rounded-lg border border-stone-300 px-3.5 py-2.5 text-base" />
           </Labeled>
+
+          {/* ---- scripted patient replies ---- */}
+          <div>
+            <div className="flex items-center justify-between">
+              <p className="mono text-xs font-medium uppercase tracking-widest text-stone-400">{t("Scripted replies", "الردود المكتوبة")}</p>
+              <button onClick={addResponse} className="pine-text flex items-center gap-1 text-sm font-semibold"><Plus className="h-4 w-4" />{t("Reply", "رد")}</button>
+            </div>
+            <p className="mt-1 text-xs text-stone-400">{t("When the student's question contains any of the keywords, the patient gives that reply — free and instant. Anything unmatched falls back to the AI.", "عندما يحتوي سؤال الطالب على أي من الكلمات المفتاحية، يردّ المريض بهذا الرد — مجانًا وفورًا. وما لا يتطابق يُحال إلى الذكاء الاصطناعي.")}</p>
+
+            <div className="mt-3 space-y-3">
+              {(draft.responses || []).map((r, i) => (
+                <div key={i} className="rounded-xl border border-stone-200 bg-white p-3">
+                  <div className="flex items-center gap-2">
+                    <input value={r.keywords} onChange={(e) => setResponse(i, "keywords", e.target.value)} placeholder={t("Keywords, comma-separated (e.g. where, location, point)", "كلمات مفتاحية مفصولة بفواصل")} className="field flex-1 rounded-lg border border-stone-200 px-3 py-2 text-sm" />
+                    {(draft.responses.length > 1) && <button onClick={() => removeResponse(i)} className="shrink-0 text-stone-300 hover:text-rose-600"><Trash2 className="h-4 w-4" /></button>}
+                  </div>
+                  <textarea value={r.reply} onChange={(e) => setResponse(i, "reply", e.target.value)} rows={2} placeholder={t("Patient's reply…", "رد المريض…")} className="field mt-2 w-full resize-none rounded-lg border border-stone-200 px-3 py-2 text-sm" />
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <Labeled label={t("Fallback line", "رد افتراضي")} hint={t("Said when nothing matches and the AI is unavailable.", "يُقال عند عدم التطابق وغياب الذكاء الاصطناعي.")}>
+                <input value={draft.fallback} onChange={(e) => updateDraft({ fallback: e.target.value })} placeholder={t("Sorry, could you ask that another way?", "آسف، هل يمكنك إعادة صياغة السؤال؟")} className="field w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
+              </Labeled>
+              <Labeled label={t("Model approach (shown after)", "المقاربة النموذجية")}>
+                <input value={draft.expected} onChange={(e) => updateDraft({ expected: e.target.value })} placeholder={t("Likely diagnosis / ideal plan", "التشخيص المرجّح / الخطة المثلى")} className="field w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
+              </Labeled>
+            </div>
+          </div>
 
           {/* ---- investigations / images ---- */}
           <div>
@@ -972,12 +1193,15 @@ Return ONLY valid minified JSON, no markdown, no code fences, no preamble, exact
                     <input value={dm.name} onChange={(e) => setDomainName(di, e.target.value)} placeholder={t("Domain name (e.g. History)", "اسم المجال (مثل: القصة)")} className="field flex-1 rounded-lg border border-stone-300 px-3 py-2 text-sm font-semibold" />
                     {draft.rubric.length > 1 && <button onClick={() => removeDomain(di)} className="flex h-9 w-9 items-center justify-center rounded-lg text-stone-400 hover:text-rose-600"><Trash2 className="h-4 w-4" /></button>}
                   </div>
-                  <div className="mt-3 space-y-2">
+                  <div className="mt-3 space-y-3">
                     {dm.items.map((it, ii) => (
-                      <div key={ii} className="flex items-center gap-2">
-                        <span className="mono text-xs text-stone-300">{ii + 1}</span>
-                        <input value={it} onChange={(e) => setItem(di, ii, e.target.value)} placeholder={t("Checklist item", "بند التقييم")} className="field flex-1 rounded-lg border border-stone-200 px-3 py-2 text-sm" />
-                        {dm.items.length > 1 && <button onClick={() => removeItem(di, ii)} className="text-stone-300 hover:text-rose-600"><X className="h-4 w-4" /></button>}
+                      <div key={ii} className="flex items-start gap-2">
+                        <span className="mono mt-2.5 text-xs text-stone-300">{ii + 1}</span>
+                        <div className="flex-1 space-y-1.5">
+                          <input value={it.text} onChange={(e) => setItem(di, ii, "text", e.target.value)} placeholder={t("Checklist item", "بند التقييم")} className="field w-full rounded-lg border border-stone-200 px-3 py-2 text-sm" />
+                          <input value={it.keywords} onChange={(e) => setItem(di, ii, "keywords", e.target.value)} placeholder={t("Scoring keywords, comma-separated (leave blank = not auto-scored)", "كلمات التصحيح مفصولة بفواصل (اتركها فارغة = لا يُصحَّح تلقائيًا)")} className="field w-full rounded-lg border border-dashed border-stone-200 px-3 py-1.5 text-xs text-stone-600" />
+                        </div>
+                        {dm.items.length > 1 && <button onClick={() => removeItem(di, ii)} className="mt-2 text-stone-300 hover:text-rose-600"><X className="h-4 w-4" /></button>}
                       </div>
                     ))}
                     <button onClick={() => addItem(di)} className="flex items-center gap-1 text-xs font-medium text-stone-500 hover:text-stone-800"><Plus className="h-3.5 w-3.5" />{t("Add item", "أضف بندًا")}</button>
@@ -1159,6 +1383,7 @@ function Labeled({ label, hint, children }) {
 function StatusIcon({ status }) {
   if (status === "done") return <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600"><Check className="h-3.5 w-3.5" /></span>;
   if (status === "partial") return <span className="mono mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-100 font-bold text-amber-600">~</span>;
+  if (status === "na") return <span className="mono mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-stone-100 font-bold text-stone-400">–</span>;
   return <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-500"><X className="h-3.5 w-3.5" /></span>;
 }
 
