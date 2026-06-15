@@ -565,7 +565,7 @@ Return ONLY valid minified JSON, no markdown, no code fences, no preamble, exact
              "تحدّث مع مريض افتراضي واقعي ضمن ظروف الامتحان، ثم اطّلع على بطاقة علامات رسمية — مُصحّحة بندًا ببند، مع ما أصبته وما فاتك وكيفية التحسّن.")}
         </p>
 
-        {membership.billingEnabled && membership.status !== "active" && (
+        {membership.billingEnabled && !membership.exempt && membership.status !== "active" && (
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
             <p className="text-sm text-amber-800">
               {membership.freeLeft > 0

@@ -170,9 +170,57 @@ Stripe billing portal ("Manage membership" in the footer).
    payment), and `FREE_STATION_LIMIT` to taste.
 
 **Pricing note:** set the membership above what a user costs you in API calls
-(a few cents per station) plus Stripe's ~3% fee, or it won't actually cover
-costs. Faculty currently pay like everyone else — say the word and I can exempt
-them. Test end-to-end with Stripe **test mode** keys before going live.
+(a few cents per station) plus the processor's ~3% fee, or it won't actually
+cover costs. **Faculty are exempt** — staff never hit the paywall. Test
+end-to-end with **test mode** keys before going live.
+
+> **Stripe + your country:** Stripe does not currently onboard businesses in
+> some countries (Lebanon among them). If Stripe won't accept your account, the
+> code is processor-agnostic enough to swap — common routes are a foreign
+> company/bank (e.g. a US/UAE entity) with Stripe, an international
+> merchant-of-record like **2Checkout/Verifone**, or a **local Lebanese
+> gateway** (Whish, Areeba/NetCommerce, a bank gateway) for local cards. The
+> right choice depends on whether your buyers and payouts are local or
+> international.
+
+## Deploying safely — security & traffic
+
+The server ships with sensible hardening already in place:
+
+- **Secure headers** (`helmet`), **gzip** (`compression`), and **CORS locked**
+  to the origins you list in `CORS_ORIGINS`.
+- **Rate limiting** — a generous global cap, a strict cap on `/auth` (blocks
+  password brute-force), and a cap on the AI endpoint (limits abuse and runaway
+  cost). Tune the numbers in `server/src/index.js`.
+- **Passwords** are bcrypt-hashed; **sessions** are signed JWTs; **all SQL is
+  parameterised** (no injection); the **API key never reaches the browser**;
+  the **Stripe webhook is signature-verified**.
+
+Your part when you deploy:
+
+1. **Use HTTPS** — Railway/Render/Netlify give every app a free TLS certificate
+   automatically. Never serve this over plain HTTP.
+2. **Strong secrets** — set a long random `JWT_SECRET` (the generator command is
+   above) and a non-obvious `FACULTY_CODE`. Keep all secrets in the host's
+   environment variables, never in the code.
+3. **Set an Anthropic spend limit** in the Anthropic console as a safety net,
+   even with the paywall.
+4. **Keep dependencies updated** (`npm audit` occasionally).
+
+**Handling traffic / scaling:**
+
+- The web app is static files on a CDN (Netlify/Vercel) — it absorbs large
+  traffic effortlessly.
+- The API is stateless, so to handle more load you raise the instance
+  count/size on your host (Railway/Render scale with a slider); requests spread
+  across instances automatically.
+- The database is the main bottleneck. Start on a hosted Postgres free tier;
+  upgrade the plan as users grow. Images are stored as data URLs in rows — fine
+  for hundreds of stations; if you reach thousands of large images, move them to
+  object storage (S3/Cloudflare R2) and keep only URLs.
+
+No app is "unhackable," but this covers the common risks (injection, brute
+force, secret leakage, cost abuse, transport security) for an app of this size.
 
 ## Data model
 
