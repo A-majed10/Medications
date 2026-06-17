@@ -25,12 +25,25 @@ const STYLE = `
 @keyframes lp{0%,100%{box-shadow:0 0 0 0 rgba(225,29,72,.5);}50%{box-shadow:0 0 0 9px rgba(225,29,72,0);}}
 .fadein{animation:fi .25s ease-out;}
 @keyframes fi{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
-.card{transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .18s,border-color .18s;}
-.card:hover{transform:translateY(-3px);box-shadow:0 18px 40px -20px rgba(21,86,75,.35);border-color:#cdded8;}
-.card:active{transform:translateY(-1px);}
-.hero{background:radial-gradient(120% 120% at 0% 0%,#e9f1ee 0%,#f0efea 45%,#f5f5f4 100%);}
-.ring-soft{box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px -16px rgba(21,86,75,.18);}
-.grain:before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,rgba(255,255,255,.5),rgba(255,255,255,0) 60%);pointer-events:none;}
+/* ---- animated gradient scene behind everything ---- */
+.scene{position:fixed;inset:0;z-index:-1;overflow:hidden;background:linear-gradient(160deg,#eef2ff 0%,#ecfeff 38%,#fef2f4 78%,#f5f3ff 100%);}
+.blob{position:absolute;border-radius:9999px;filter:blur(70px);opacity:.5;mix-blend-mode:multiply;animation:float 22s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(40px,-30px) scale(1.12);}66%{transform:translate(-30px,25px) scale(.92);}}
+/* ---- glassmorphism ---- */
+.glass{background:rgba(255,255,255,.62);backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%);border:1px solid rgba(255,255,255,.7);box-shadow:0 12px 40px -18px rgba(30,41,59,.30);}
+.glass-head{background:rgba(255,255,255,.7);backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);border-bottom:1px solid rgba(255,255,255,.6);}
+/* ---- motion ---- */
+.pop{transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s;}
+.pop:hover{transform:translateY(-5px) scale(1.015);box-shadow:0 26px 50px -22px rgba(30,41,59,.40);}
+.pop:active{transform:translateY(-2px) scale(.99);}
+.rise{opacity:0;animation:rise .55s cubic-bezier(.2,.8,.2,1) forwards;}
+@keyframes rise{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
+.float-soft{animation:floaty 6s ease-in-out infinite;}
+@keyframes floaty{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+.shine{position:relative;overflow:hidden;}
+.shine:after{content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;background:linear-gradient(115deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-18deg);transition:left .6s;}
+.pop:hover .shine:after,.shine:hover:after{left:140%;}
+.ring-soft{box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px -16px rgba(30,41,59,.18);}
 `;
 
 // AI calls now go through our backend, which holds the Anthropic key securely
@@ -62,6 +75,79 @@ const CATEGORIES = {
   other: { labelEn: "Other", labelAr: "أخرى", Icon: ClipboardList, accent: "amber" },
 };
 const CATEGORY_KEYS = Object.keys(CATEGORIES);
+
+// Per-specialty colour ramp (deep, mid, light) used by the illustrated tiles.
+const ART = {
+  cardio: { a: "#e11d48", b: "#fb7185", c: "#ffe4e6", grad: "from-rose-50 to-white" },
+  pulmo: { a: "#0284c7", b: "#38bdf8", c: "#e0f2fe", grad: "from-sky-50 to-white" },
+  nephro: { a: "#0d9488", b: "#2dd4bf", c: "#ccfbf1", grad: "from-teal-50 to-white" },
+  gi: { a: "#059669", b: "#34d399", c: "#d1fae5", grad: "from-emerald-50 to-white" },
+  comm: { a: "#7c3aed", b: "#a78bfa", c: "#ede9fe", grad: "from-violet-50 to-white" },
+  other: { a: "#d97706", b: "#fbbf24", c: "#fef3c7", grad: "from-amber-50 to-white" },
+};
+
+// Flat, modern organ illustrations — one per specialty, drawn inline so there's
+// no external image hosting. Each uses its specialty's colour ramp.
+function SpecialtyArt({ k, size = 78 }) {
+  const c = ART[k] || ART.other;
+  const gid = "g_" + k;
+  const grad = (
+    <defs>
+      <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stopColor={c.b} />
+        <stop offset="1" stopColor={c.a} />
+      </linearGradient>
+    </defs>
+  );
+  const P = { fill: `url(#${gid})` };
+  const paths = {
+    cardio: (
+      <g>{grad}
+        <path {...P} d="M50 86C26 70 12 56 12 38 12 26 21 18 32 18c8 0 14 4 18 11 4-7 10-11 18-11 11 0 20 8 20 20 0 18-14 32-38 48z" />
+        <path d="M20 46h16l6-12 9 24 7-16 5 8h12" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+      </g>
+    ),
+    pulmo: (
+      <g>{grad}
+        <rect x="47" y="12" width="6" height="26" rx="3" {...P} />
+        <path {...P} d="M44 34c0 14-6 20-16 30-8 8-14 4-15-6-1-12 2-26 9-34 7-7 22-6 22 4z" />
+        <path {...P} d="M56 34c0 14 6 20 16 30 8 8 14 4 15-6 1-12-2-26-9-34-7-7-22-6-22 4z" />
+        <path d="M37 30v34M63 30v34" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" opacity=".7" />
+      </g>
+    ),
+    nephro: (
+      <g>{grad}
+        <path {...P} d="M62 16c16 0 24 16 24 34S70 88 52 88 22 70 22 50c0-12 6-20 16-20 8 0 10 6 14 6 5 0 2-20 10-20z" />
+        <path d="M52 40c-8 4-10 12-10 20" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" opacity=".8" />
+      </g>
+    ),
+    gi: (
+      <g>{grad}
+        <path {...P} d="M40 14c0 12-2 16 6 20 12 6 24 10 24 30 0 16-12 24-26 24-12 0-22-8-22-18 0-7 5-12 12-12s10 4 10 9c0 3-2 5-5 5" fill="none" stroke={`url(#${gid})`} strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" />
+      </g>
+    ),
+    comm: (
+      <g>{grad}
+        <path {...P} d="M16 26c0-6 4-10 10-10h32c6 0 10 4 10 10v18c0 6-4 10-10 10H38l-14 12V54h-2c-6 0-10-4-10-10z" opacity=".95" />
+        <path {...P} d="M58 44h18c6 0 10 4 10 10v14c0 6-4 10-10 10h-2v10l-12-10h-6c-4 0-8-2-9-6" opacity=".6" />
+        <circle cx="30" cy="35" r="3.5" fill="#fff" /><circle cx="42" cy="35" r="3.5" fill="#fff" /><circle cx="54" cy="35" r="3.5" fill="#fff" />
+      </g>
+    ),
+    other: (
+      <g>{grad}
+        <path d="M30 16v22c0 12 9 20 20 20s20-8 20-20V16" fill="none" stroke={`url(#${gid})`} strokeWidth="8" strokeLinecap="round" />
+        <circle cx="30" cy="14" r="5" {...P} /><circle cx="70" cy="14" r="5" {...P} />
+        <path d="M50 58v10c0 9 7 16 16 16s16-7 16-16v-6" fill="none" stroke={`url(#${gid})`} strokeWidth="8" strokeLinecap="round" />
+        <circle cx="82" cy="60" r="9" fill="none" stroke={`url(#${gid})`} strokeWidth="8" />
+      </g>
+    ),
+  };
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" className="float-soft" style={{ filter: "drop-shadow(0 6px 10px rgba(0,0,0,.12))" }}>
+      {paths[k] || paths.other}
+    </svg>
+  );
+}
 
 // A lightweight, self-contained demo ECG (rhythm strip) drawn as an SVG so the
 // app needs no external image hosting. Faculty can attach their own real images.
@@ -487,10 +573,16 @@ Return ONLY valid minified JSON, no markdown, no code fences, no preamble, exact
   }
 
   return (
-    <div dir={ar ? "rtl" : "ltr"} className="ui-root min-h-screen bg-stone-100 text-stone-900">
+    <div dir={ar ? "rtl" : "ltr"} className="ui-root min-h-screen text-stone-900">
       <style>{STYLE}</style>
-      <div className="mx-auto flex min-h-screen max-w-3xl flex-col bg-stone-100">
-        <header className="flex items-center justify-between border-b border-stone-200 bg-white px-5 py-3.5">
+      <div className="scene" aria-hidden="true">
+        <span className="blob" style={{ width: 360, height: 360, top: -80, left: -60, background: "#7dd3fc" }} />
+        <span className="blob" style={{ width: 320, height: 320, top: 120, right: -80, background: "#fda4af", animationDelay: "-6s" }} />
+        <span className="blob" style={{ width: 300, height: 300, bottom: -60, left: 80, background: "#c4b5fd", animationDelay: "-12s" }} />
+        <span className="blob" style={{ width: 260, height: 260, bottom: 40, right: 40, background: "#5eead4", animationDelay: "-3s" }} />
+      </div>
+      <div className="mx-auto flex min-h-screen max-w-3xl flex-col">
+        <header className="glass-head sticky top-0 z-30 flex items-center justify-between px-5 py-3">
           <button onClick={reset} className="flex items-center gap-2.5">
             <span className="pine flex h-9 w-9 items-center justify-center rounded-lg"><Stethoscope className="h-5 w-5" /></span>
             <span className="text-start leading-tight">
@@ -565,85 +657,81 @@ Return ONLY valid minified JSON, no markdown, no code fences, no preamble, exact
     const counts = all.reduce((m, c) => { m[c.category] = (m[c.category] || 0) + 1; return m; }, {});
     const total = all.length;
     return (
-      <div>
+      <div className="px-5 pb-12 pt-8">
         {/* hero */}
-        <div className="hero relative overflow-hidden px-5 pb-10 pt-9">
-          <p className="mono pine-text text-xs font-medium uppercase tracking-[0.2em]">{t("Examination circuit", "حلبة الامتحان")}</p>
-          <h1 className="disp mt-2 text-4xl font-semibold leading-[1.05] tracking-tight text-stone-900 sm:text-5xl">
-            {t("Practice like it's exam day.", "تدرّب كأنه يوم الامتحان.")}
+        <div className="rise" style={{ animationDelay: "40ms" }}>
+          <span className="mono inline-flex items-center gap-1.5 rounded-full bg-white/60 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-[#15564b] ring-1 ring-white/70 backdrop-blur">
+            <Sparkles className="h-3.5 w-3.5" />{t("OSCE trainer", "مدرّب OSCE")}
+          </span>
+          <h1 className="disp mt-3 text-4xl font-semibold leading-[1.04] tracking-tight text-stone-900 sm:text-5xl">
+            {t("Practice like it's", "تدرّب وكأنه")}{" "}
+            <span className="bg-gradient-to-r from-[#15564b] via-sky-600 to-violet-600 bg-clip-text text-transparent">{t("exam day.", "يوم الامتحان.")}</span>
           </h1>
           <p className="mt-3 max-w-xl text-base leading-relaxed text-stone-600">
-            {t("Pick a specialty, step into a realistic patient encounter, and get an examiner-style mark sheet — scored point by point with exactly what to improve.",
-               "اختر تخصّصًا، وادخل في مقابلة واقعية مع مريض، واحصل على بطاقة علامات كالممتحِن — مُصحّحة بندًا ببند مع ما يجب تحسينه.")}
+            {t("Pick a specialty, step into a realistic patient encounter, and get an examiner-style mark sheet — scored point by point.",
+               "اختر تخصّصًا، وادخل في مقابلة واقعية مع مريض، واحصل على بطاقة علامات كالممتحِن — مُصحّحة بندًا ببند.")}
           </p>
-          <div className="mono mt-4 flex flex-wrap gap-4 text-xs text-stone-500">
-            <span className="flex items-center gap-1.5"><Stethoscope className="pine-text h-4 w-4" />{total} {t("stations", "محطّة")}</span>
-            <span className="flex items-center gap-1.5"><MessageSquare className="pine-text h-4 w-4" />{t("AI patient", "مريض ذكي")}</span>
-            <span className="flex items-center gap-1.5"><ClipboardList className="pine-text h-4 w-4" />{t("Instant mark sheet", "بطاقة علامات فورية")}</span>
-          </div>
         </div>
 
-        <div className="px-5 pb-10">
-          {membership.billingEnabled && !membership.exempt && membership.status !== "active" && (
-            <div className="-mt-4 mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 ring-soft">
-              <p className="text-sm text-amber-800">
-                {membership.freeLeft > 0
-                  ? t(`Free trial — ${membership.freeLeft} of ${membership.freeLimit} stations left.`, `تجربة مجانية — تبقّى ${membership.freeLeft} من ${membership.freeLimit} محطّات.`)
-                  : t("Your free trial is over. Subscribe to keep practising.", "انتهت تجربتك المجانية. اشترك لمواصلة التدرّب.")}
-              </p>
-              <button onClick={() => setView("paywall")} className="pine flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold"><Sparkles className="h-4 w-4" />{t("Go premium", "اشترك")}</button>
-            </div>
-          )}
+        {membership.billingEnabled && !membership.exempt && membership.status !== "active" && (
+          <div className="glass rise mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl px-4 py-3">
+            <p className="text-sm text-amber-900">
+              {membership.freeLeft > 0
+                ? t(`Free trial — ${membership.freeLeft} of ${membership.freeLimit} stations left.`, `تجربة مجانية — تبقّى ${membership.freeLeft} من ${membership.freeLimit} محطّات.`)
+                : t("Your free trial is over. Subscribe to keep practising.", "انتهت تجربتك المجانية. اشترك لمواصلة التدرّب.")}
+            </p>
+            <button onClick={() => setView("paywall")} className="pine flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold"><Sparkles className="h-4 w-4" />{t("Go premium", "اشترك")}</button>
+          </div>
+        )}
 
-          <p className="mono text-xs font-medium uppercase tracking-widest text-stone-400">{t("Choose a specialty", "اختر تخصّصًا")}</p>
-          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {CATEGORY_KEYS.map((k) => {
-              const cat = CATEGORIES[k];
-              const Icon = cat.Icon;
-              const n = counts[k] || 0;
-              return (
-                <button key={k} onClick={() => openCategory(k)} className="card group relative flex flex-col items-start gap-3 overflow-hidden rounded-2xl border border-stone-200 bg-white p-4 text-start ring-soft sm:p-5">
-                  <span className={`grain relative flex h-12 w-12 items-center justify-center rounded-xl ${ACCENT[cat.accent]}`}><Icon className="h-6 w-6" /></span>
-                  <span className="w-full">
-                    <span className="disp block text-lg font-semibold leading-tight text-stone-900">{t(cat.labelEn, cat.labelAr)}</span>
-                    <span className="mt-0.5 flex items-center justify-between">
-                      <span className="text-xs text-stone-500">{n} {t(n === 1 ? "station" : "stations", "محطّة")}</span>
-                      <ChevronRight className="h-4 w-4 text-stone-300 transition group-hover:translate-x-0.5 group-hover:text-stone-600" />
-                    </span>
+        <p className="mono mt-8 text-xs font-medium uppercase tracking-widest text-stone-500">{t("Choose a specialty", "اختر تخصّصًا")}</p>
+        <div className="mt-3 grid grid-cols-2 gap-3.5 sm:grid-cols-3">
+          {CATEGORY_KEYS.map((k, i) => {
+            const cat = CATEGORIES[k];
+            const n = counts[k] || 0;
+            return (
+              <button key={k} onClick={() => openCategory(k)} className="glass pop rise group relative flex flex-col overflow-hidden rounded-3xl p-2.5 text-start" style={{ animationDelay: `${80 + i * 60}ms` }}>
+                <span className={`shine relative flex h-28 items-center justify-center rounded-2xl bg-gradient-to-br ${ART[k].grad}`}>
+                  <SpecialtyArt k={k} />
+                </span>
+                <span className="px-2 pb-1 pt-3">
+                  <span className="disp block text-lg font-semibold leading-tight text-stone-900">{t(cat.labelEn, cat.labelAr)}</span>
+                  <span className="mt-0.5 flex items-center justify-between">
+                    <span className="text-xs text-stone-500">{n} {t(n === 1 ? "station" : "stations", "محطّة")}</span>
+                    <ChevronRight className="h-4 w-4 text-stone-300 transition group-hover:translate-x-0.5 group-hover:text-stone-600" />
                   </span>
-                </button>
-              );
-            })}
-          </div>
-
-          <button onClick={requireFacultyThenNew} className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-stone-300 bg-white/70 px-5 py-4 text-sm font-medium text-stone-500 hover:border-stone-400 hover:text-stone-800">
-            {isFaculty ? <Plus className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
-            {isFaculty ? t("Author a new station", "أنشئ محطّة جديدة") : t("Faculty sign-in to add stations", "دخول الهيئة لإضافة محطّات")}
-          </button>
+                </span>
+              </button>
+            );
+          })}
         </div>
+
+        <button onClick={requireFacultyThenNew} className="rise mt-6 flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-white/70 bg-white/40 px-5 py-4 text-sm font-medium text-stone-600 backdrop-blur transition hover:bg-white/60">
+          {isFaculty ? <Plus className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+          {isFaculty ? t("Author a new station", "أنشئ محطّة جديدة") : t("Faculty sign-in to add stations", "دخول الهيئة لإضافة محطّات")}
+        </button>
       </div>
     );
   }
 
   function CategoryView() {
     const cat = CATEGORIES[catView] || CATEGORIES.other;
-    const Icon = cat.Icon;
     const list = allCases().filter((c) => c.category === catView);
     return (
       <div className="px-5 py-8">
-        <button onClick={() => setView("home")} className="mb-6 flex items-center gap-1.5 text-sm font-medium text-stone-500 hover:text-stone-900"><ArrowLeft className="h-4 w-4" />{t("All specialties", "كل التخصّصات")}</button>
-        <div className="flex items-center gap-3">
-          <span className={`grain relative flex h-14 w-14 items-center justify-center rounded-2xl ${ACCENT[cat.accent]}`}><Icon className="h-7 w-7" /></span>
+        <button onClick={() => setView("home")} className="mb-5 flex items-center gap-1.5 text-sm font-medium text-stone-500 hover:text-stone-900"><ArrowLeft className="h-4 w-4" />{t("All specialties", "كل التخصّصات")}</button>
+        <div className={`glass rise flex items-center gap-4 overflow-hidden rounded-3xl bg-gradient-to-br ${ART[catView] ? ART[catView].grad : ""} p-4`}>
+          <span className="flex h-20 w-20 shrink-0 items-center justify-center"><SpecialtyArt k={catView} size={72} /></span>
           <div>
             <h1 className="disp text-3xl font-semibold tracking-tight text-stone-900">{t(cat.labelEn, cat.labelAr)}</h1>
-            <p className="text-sm text-stone-500">{list.length} {t(list.length === 1 ? "topic to practice" : "topics to practice", "موضوع للتدرّب")}</p>
+            <p className="text-sm text-stone-600">{list.length} {t(list.length === 1 ? "topic to practice" : "topics to practice", "موضوع للتدرّب")}</p>
           </div>
         </div>
 
-        <div className="mt-6 space-y-3">
-          {list.map((c) => <StationCard key={c.id} c={c} />)}
+        <div className="mt-5 space-y-3">
+          {list.map((c, i) => <StationCard key={c.id} c={c} i={i} />)}
           {list.length === 0 && (
-            <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-10 text-center">
+            <div className="glass rounded-3xl p-10 text-center">
               <ClipboardList className="mx-auto h-8 w-8 text-stone-300" />
               <p className="mt-3 text-sm text-stone-500">{t("No topics here yet.", "لا توجد مواضيع هنا بعد.")}</p>
               <button onClick={requireFacultyThenNew} className="pine-text mt-3 inline-flex items-center gap-1 text-sm font-semibold">{isFaculty ? <Plus className="h-4 w-4" /> : <Lock className="h-4 w-4" />}{isFaculty ? t("Add one", "أضف واحدًا") : t("Faculty sign-in to add", "دخول الهيئة للإضافة")}</button>
@@ -654,17 +742,16 @@ Return ONLY valid minified JSON, no markdown, no code fences, no preamble, exact
     );
   }
 
-  // A station as a tappable card (used inside a specialty).
-  function StationCard({ c }) {
-    const Icon = c.Icon;
+  // A station as a tappable glass card (used inside a specialty).
+  function StationCard({ c, i = 0 }) {
     return (
-      <button onClick={() => openBrief(c)} className="card group flex w-full items-center gap-4 rounded-2xl border border-stone-200 bg-white p-4 text-start ring-soft">
-        <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${ACCENT[c.accent]}`}><Icon className="h-5 w-5" /></span>
+      <button onClick={() => openBrief(c)} className="glass pop rise group flex w-full items-center gap-4 rounded-2xl p-3.5 text-start" style={{ animationDelay: `${i * 60}ms` }}>
+        <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${ART[c.category] ? ART[c.category].grad : "from-stone-50 to-white"}`}><SpecialtyArt k={c.category} size={34} /></span>
         <span className="min-w-0 flex-1">
           <span className="flex flex-wrap items-center gap-2">
             <span className="disp text-lg font-semibold leading-tight text-stone-900">{t(c.titleEn, c.titleAr)}</span>
             {c.images && c.images.length > 0 && (
-              <span className="flex items-center gap-1 rounded-full bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-500"><ImageIcon className="h-3 w-3" />{c.images.length}</span>
+              <span className="flex items-center gap-1 rounded-full bg-white/70 px-2 py-0.5 text-xs font-medium text-stone-500"><ImageIcon className="h-3 w-3" />{c.images.length}</span>
             )}
             {c.custom && <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700">{t("Faculty", "هيئة")}</span>}
           </span>
