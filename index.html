@@ -60,7 +60,29 @@ body.ar span[data-ar] { display: inline; }
 body.ar p[data-ar], body.ar h1[data-ar], body.ar h2[data-ar], body.ar h3[data-ar], body.ar li[data-ar] { display: block; }
 body.ar * { font-family: var(--font-arabic), sans-serif; }
 body.ar .nav-logo span { font-family: var(--font-arabic); }
+body.ar .nav-logo-name, body.ar .nav-logo-tag { direction: ltr; text-align: right; }
 body.ar .stat-label, body.ar .stat-num { font-family: var(--font-arabic); }
+
+/* Arabic typography: latin letter-spacing breaks cursive joining, and the
+   tight display line-height clips diacritics, so both are reset. */
+body.ar h1, body.ar h2, body.ar h3, body.ar h4,
+body.ar .contact-detail-label, body.ar .form-group label,
+body.ar .form-submit, body.ar .footer-col h4 { letter-spacing: 0; }
+body.ar .contact-info h1 { line-height: 1.45; }
+body.ar .contact-form-wrap h2 { line-height: 1.4; }
+
+/* Latin-script data (phone, email) inside RTL prose: without an isolate the
+   bidi algorithm reorders the digit groups, e.g. +961 3 677 993 -> 993 677 3 961+ */
+.ltr-data { direction: ltr; unicode-bidi: isolate; }
+body.ar .contact-detail-value .ltr-data { display: block; text-align: right; }
+
+/* Arabic form fields read right-to-left; email/phone stay LTR but flush right. */
+body.ar .form-group input, body.ar .form-group select,
+body.ar .form-group textarea { text-align: right; }
+body.ar .form-group input[type="email"],
+body.ar .form-group input[type="tel"] { direction: ltr; text-align: right; }
+/* mirror the clipped corner so it trails the reading direction */
+body.ar .form-submit { clip-path: polygon(0 0, 100% 0, 100% 100%, 4% 100%, 0 75%); }
 
 /* ── NAV ─────────────────────────────────────── */
 nav {
@@ -1504,7 +1526,7 @@ a[href^="tel:"]:hover,
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 Goubela Co. S.A.R.L. <span data-en>All rights reserved.</span><span data-ar>جميع الحقوق محفوظة.</span></p>
+      <p><span class="ltr-data">© 2025 Goubela Co. S.A.R.L.</span> <span data-en>All rights reserved.</span><span data-ar>جميع الحقوق محفوظة.</span></p>
       <p><span data-en>Traffic Engineering Systems · Road Marking · Signage · Safety Infrastructure</span><span data-ar>سلامة الطرق · دهان الطرق · البنية التحتية</span></p>
     </div>
   </footer>
@@ -1632,7 +1654,7 @@ a[href^="tel:"]:hover,
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 Goubela Co. S.A.R.L.</p>
+      <p><span class="ltr-data">© 2025 Goubela Co. S.A.R.L.</span></p>
     </div>
   </footer>
 </div>
@@ -1922,7 +1944,7 @@ a[href^="tel:"]:hover,
         </ul>
       </div>
     </div>
-    <div class="footer-bottom"><p>© 2025 Goubela Co. S.A.R.L.</p></div>
+    <div class="footer-bottom"><p><span class="ltr-data">© 2025 Goubela Co. S.A.R.L.</span></p></div>
   </footer>
 </div>
 
@@ -2109,7 +2131,7 @@ a[href^="tel:"]:hover,
         </ul>
       </div>
     </div>
-    <div class="footer-bottom"><p>© 2025 Goubela Co. S.A.R.L.</p></div>
+    <div class="footer-bottom"><p><span class="ltr-data">© 2025 Goubela Co. S.A.R.L.</span></p></div>
   </footer>
 </div>
 
@@ -2215,7 +2237,7 @@ a[href^="tel:"]:hover,
         </ul>
       </div>
     </div>
-    <div class="footer-bottom"><p>© 2025 Goubela Co. S.A.R.L.</p></div>
+    <div class="footer-bottom"><p><span class="ltr-data">© 2025 Goubela Co. S.A.R.L.</span></p></div>
   </footer>
 </div>
 
@@ -2226,7 +2248,7 @@ a[href^="tel:"]:hover,
       <div>
         <h1>
           <span data-en>Let's Build<br><em>Something</em><br>Together.</span>
-          <span data-ar>لنبني<br><em>شيئاً</em><br>معاً.</span>
+          <span data-ar>لنبني<em>شيئاً</em>معاً.</span>
         </h1>
         <div class="contact-details">
           <div class="contact-detail">
@@ -2241,7 +2263,7 @@ Mar Nohra Street,
 Adib Kmeid BLDG,
 Ground Floor.<br>Showroom:<br>Jounieh Highway , 
 Kalim & Yvonne Center</span>
-                <span data-ar>عنوان مكتبك<br>بيروت، لبنان</span>
+                <span data-ar>جونية، ساحل علما،<br>شارع مار نهرا، مبنى أديب كميد،<br>الطابق الأرضي.<br>صالة العرض:<br>أوتوستراد جونية،<br>مركز كليم وإيفون</span>
               </div>
             </div>
           </div>
@@ -2251,7 +2273,7 @@ Kalim & Yvonne Center</span>
             </div>
             <div>
               <div class="contact-detail-label"><span data-en>Phone</span><span data-ar>الهاتف</span></div>
-              <div class="contact-detail-value">+961 3 677 993</div>
+              <div class="contact-detail-value"><span class="ltr-data">+961 3 677 993</span></div>
             </div>
           </div>
           <div class="contact-detail">
@@ -2259,8 +2281,8 @@ Kalim & Yvonne Center</span>
               <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             </div>
             <div>
-              <div class="contact-detail-label">Email</div>
-              <div class="contact-detail-value">goubelaco@gmail.com</div>
+              <div class="contact-detail-label"><span data-en>Email</span><span data-ar>البريد الإلكتروني</span></div>
+              <div class="contact-detail-value"><span class="ltr-data">goubelaco@gmail.com</span></div>
             </div>
           </div>
         </div>
@@ -2282,16 +2304,16 @@ Kalim & Yvonne Center</span>
         <div class="form-row">
           <div class="form-group">
             <label><span data-en>Full Name</span><span data-ar>الاسم الكامل</span></label>
-            <input id="quote-name" type="text" placeholder="Your name">
+            <input id="quote-name" type="text" placeholder="Your name" data-ar-ph="اسمك">
           </div>
           <div class="form-group">
             <label><span data-en>Company</span><span data-ar>الشركة</span></label>
-            <input id="quote-company" type="text" placeholder="Company name">
+            <input id="quote-company" type="text" placeholder="Company name" data-ar-ph="اسم الشركة">
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label>Email</label>
+            <label><span data-en>Email</span><span data-ar>البريد الإلكتروني</span></label>
             <input id="quote-email" type="email" placeholder="your@email.com">
           </div>
           <div class="form-group">
@@ -2302,21 +2324,21 @@ Kalim & Yvonne Center</span>
         <div class="form-group">
           <label><span data-en>Project Type</span><span data-ar>نوع المشروع</span></label>
           <select id="quote-type">
-            <option value=""><span data-en>Select a service</span></option>
-            <option>Road Marking</option>
-            <option>Traffic Signage</option>
-            <option>Safety Infrastructure</option>
-            <option>Road Audit / Consulting</option>
-            <option>Multiple Services</option>
+            <option value="" data-ar-text="اختر خدمة">Select a service</option>
+            <option value="Road Marking" data-ar-text="دهان الطرق">Road Marking</option>
+            <option value="Traffic Signage" data-ar-text="إشارات المرور">Traffic Signage</option>
+            <option value="Safety Infrastructure" data-ar-text="البنية التحتية للسلامة">Safety Infrastructure</option>
+            <option value="Road Audit / Consulting" data-ar-text="تدقيق الطرق / الاستشارات">Road Audit / Consulting</option>
+            <option value="Multiple Services" data-ar-text="خدمات متعددة">Multiple Services</option>
           </select>
         </div>
         <div class="form-group">
           <label><span data-en>Project Location</span><span data-ar>موقع المشروع</span></label>
-          <input id="quote-location" type="text" placeholder="City, Country">
+          <input id="quote-location" type="text" placeholder="City, Country" data-ar-ph="المدينة، الدولة">
         </div>
         <div class="form-group">
           <label><span data-en>Project Description</span><span data-ar>وصف المشروع</span></label>
-          <textarea id="quote-description" placeholder="Briefly describe your project, scope, timeline, and any specific requirements..."></textarea>
+          <textarea id="quote-description" placeholder="Briefly describe your project, scope, timeline, and any specific requirements..." data-ar-ph="صف مشروعك باختصار: النطاق، الجدول الزمني، وأي متطلبات خاصة..."></textarea>
         </div>
         <button class="form-submit" onclick="submitForm()">
           <span data-en>Send Request →</span>
@@ -2324,7 +2346,7 @@ Kalim & Yvonne Center</span>
         </button>
         <p class="form-note">
           <span data-en>By submitting, you agree to be contacted by Goubela regarding your inquiry.</span>
-          <span data-ar>بالإرسال، توافق على أن تتواصل معك جوبيلا بخصوص استفسارك.</span>
+          <span data-ar>بإرسال هذا الطلب، فإنك توافق على أن تتواصل معك شركة جوبيلا بخصوص استفسارك.</span>
         </p>
       </div>
       <div id="form-success" style="display:none; text-align:center; padding:60px 20px;">
@@ -2356,7 +2378,7 @@ Kalim & Yvonne Center</span>
         </ul>
       </div>
     </div>
-    <div class="footer-bottom"><p>© 2025 Goubela Co. S.A.R.L.</p></div>
+    <div class="footer-bottom"><p><span class="ltr-data">© 2025 Goubela Co. S.A.R.L.</span></p></div>
   </footer>
 </div>
 
@@ -2485,12 +2507,26 @@ function showPage(id) {
 }
 
 let isAr = false;
+// Placeholders and <option> labels are plain text, so they cannot use the
+// [data-en]/[data-ar] show-hide spans and are swapped here instead.
+function applyLangToFields() {
+  document.querySelectorAll('[data-ar-ph]').forEach(el => {
+    if (!el.dataset.enPh) el.dataset.enPh = el.getAttribute('placeholder') || '';
+    el.setAttribute('placeholder', isAr ? el.dataset.arPh : el.dataset.enPh);
+  });
+  document.querySelectorAll('option[data-ar-text]').forEach(el => {
+    if (!el.dataset.enText) el.dataset.enText = el.textContent;
+    el.textContent = isAr ? el.dataset.arText : el.dataset.enText;
+  });
+}
+
 function toggleLang() {
   isAr = !isAr;
   document.body.classList.toggle('ar', isAr);
   document.getElementById('lang-btn').textContent = isAr ? 'English' : 'العربية';
   document.documentElement.setAttribute('dir', isAr ? 'rtl' : 'ltr');
   document.documentElement.setAttribute('lang', isAr ? 'ar' : 'en');
+  applyLangToFields();
   if (document.getElementById('page-projects').classList.contains('active')) {
     renderProjects('all');
   }
